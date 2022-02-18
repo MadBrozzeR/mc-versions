@@ -1,0 +1,16 @@
+{
+  "name": "mc-versions",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "MadBrozzeR",
+  "license": "ISC",
+  "dependencies": {
+    "mbr-queue": "^2.1.0",
+    "mbr-zip": "^0.1.0"
+  }
+}

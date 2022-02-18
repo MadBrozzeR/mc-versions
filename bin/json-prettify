@@ -1,0 +1,7 @@
+#! /usr/bin/env node
+
+const {JSONPrettifyFile} = require('../utils.js');
+
+JSONPrettifyFile(process.argv[2])
+  .then(function () {console.log('File successfully rewritten')})
+  .catch(function (error) {throw error;})
