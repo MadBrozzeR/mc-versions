@@ -2,18 +2,10 @@ const fs = require('fs');
 const MCRes = require('../resources/index.js');
 const { LoadQueue } = require('mbr-queue');
 const { Git } = require('./git.js');
+const PATH = require('./path.js')
 const { UnZIP, writeFile, toJSON, clearDir } = require('./utils.js');
 
 const versions = new MCRes.Versions();
-
-const PATH = {};
-PATH.ROOT = __dirname + '/data';
-PATH.CLIENT = PATH.ROOT + '/client/';
-PATH.SERVER = PATH.ROOT + '/server/';
-PATH.ASSETS = PATH.ROOT + '/assets/';
-PATH.JSON = PATH.ROOT + '/json/';
-PATH.VERSION = PATH.JSON + '/version.json';
-PATH.ASSET_INDEX = PATH.JSON + '/assets.json';
 
 const git = new Git({ repo: PATH.ROOT });
 function noop() {return};
