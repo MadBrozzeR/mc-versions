@@ -70,12 +70,8 @@ Git.prototype.branch = function () {
   ));
 }
 
-Git.prototype.diff = function (params) {
-  const attrs = [];
-
-  if (params.nameOnly) {
-    attrs.push('--name-only');
-  }
+Git.prototype.diffName = function (params) {
+  const attrs = ['--name-status', '-l0'];
 
   if (params.refs) {
     attrs.push(...params.refs);
@@ -87,7 +83,15 @@ Git.prototype.diff = function (params) {
     attrs.push('--', params.path);
   }
 
-  return this.raw('diff', ...attrs);
+  return this.raw('diff', ...attrs).then(parseByMatch(
+    /(\w)(\d*)\s+(?:(.+?)\t)?(.+)\n/g,
+    (match) => ({
+      name: match[4],
+      oldName: match[3],
+      type: match[1],
+      score: match[2] ? parseInt(match[2], 10) : 0
+    })
+  ));
 }
 
 module.exports = { Git };

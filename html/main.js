@@ -25,8 +25,14 @@ window.onload = function () {
   var ifc = {};
 
   function fetcher (request, onSuccess) {
+    ifc.waiterShow();
+
     return request
-      .then(function (response) { return response.json() })
+      .then(function (response) {
+        ifc.waiterHide();
+
+        return response.json();
+      })
       .then(onSuccess);
   }
 
@@ -55,6 +61,71 @@ window.onload = function () {
   var head = document.getElementsByTagName('head')[0];
 
   mbr.stylesheet(style, head);
+
+  mbr.dom('div', null, function (curtain) {
+    curtain.appendTo(body);
+    var curtainCN = curtain.cn('modal__curtain');
+    var blocks = {
+      title: null,
+      content: null
+    };
+    var size = 'l';
+    var state = '';
+    curtainCN.add('size_' + size);
+
+    ifc.modalHide = function (stateToHide) {
+      if (!stateToHide || stateToHide === state) {
+        curtainCN.del('active');
+      }
+    }
+
+    ifc.modalShow = function (options, content) {
+      options = options || {};
+      var newSize = options.size || 'l';
+
+      state = options.state || '';
+
+      if (newSize !== size) {
+        curtainCN.del('size_' + size);
+        curtainCN.add('size_' + newSize);
+        size = newSize;
+      }
+
+      blocks.title.dom.innerText = options.title || '';
+      blocks.content.clear();
+      blocks.content.append(content);
+      curtainCN.add('active');
+    }
+
+    curtain.append(mbr.dom('div', { className: 'modal' }, function (modal) {
+      modal.append(
+        mbr.dom('div', { className: 'modal__head' }, function (title) {
+          title.append(
+            blocks.title = mbr.dom('span', { className: 'modal__title', innerText: 'asafsdf sdaf sadf' }),
+            mbr.dom('span', {
+              className: 'modal__close',
+              innerHTML: '&#10060;',
+              onclick: function () {ifc.modalHide()}
+            })
+          );
+        }),
+        blocks.content = mbr.dom('div', { className: 'modal__content' })
+      );
+    }));
+  });
+
+  var waiter = mbr.dom('div', { className: 'waiter__wrapper' }, function (wrapper) {
+    wrapper.append(mbr.dom('div', { className: 'waiter' }));
+
+    ifc.waiterShow = function () {
+      ifc.modalShow({ title: 'Loading...', size: 's', state: 'waiter' }, waiter);
+    }
+
+    ifc.waiterHide = function () {
+      ifc.modalHide('waiter');
+    }
+  });
+
 
   mbr.dom('div', null, function (mainblock) {
     mainblock.appendTo(body);
@@ -121,33 +192,91 @@ window.onload = function () {
       mbr.dom('div', null, function (difflist) {
         const groupCheck = {
           set: {
-            Class: /^.+\.class$/
+            Class: /^.+\.class$/,
+            Meta: /^(?:client|server)\/META-INF\/.+$/,
+            VersionInfo: /^(?:client|server|json)\/(version|assets).json$/,
+            Structures: /^client\/data\/minecraft\/structures\/.+\.nbt$/,
+            Assets: /^assets\/.+$/,
+            'Client Data': /^client\/.+$/,
+            'Server Data': /^server\/.+$/,
           },
           check: function (file) {
             for (var key in this.set) {
-              if (this.set[key].test(file)) {
+              if (this.set[key].test(file.name)) {
                 return key;
               }
             }
 
-            return '';
+            return 'Other';
+          },
+          getGroups: function () {
+            var result = {};
+
+            for (var name in this.set) {
+              result[name] = [];
+            }
+            result.Other = [];
+
+            return result;
           }
         };
 
         ifc.difflist = function (files) {
           difflist.clear();
 
-          var groups = {
-            Class: [],
-            Other: []
-          };
+          var groups = groupCheck.getGroups();
 
           files.forEach(function (file) {
             const group = groupCheck.check(file);
-            groups[group || 'Other'].push(file);
+
+            groups[group].push(file);
           });
 
-          console.log(groups);
+          for (var groupName in groups) {
+            if (groups[groupName].length === 0) {
+              continue;
+            }
+
+            mbr.dom('div', null, function (diffGroup) {
+              diffGroup.appendTo(difflist);
+              var groupCN = diffGroup.cn('diff-group');
+              var isOpen = false;
+
+              diffGroup.append(
+                mbr.dom('div', { className: 'diff-group__head' }, function (head) {
+                  head.append(
+                    mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
+                    mbr.dom('span', { className: 'diff-group__title', innerText: groupName })
+                  );
+
+                  head.on({
+                    click: function () {
+                      if (isOpen) {
+                        groupCN.del('active');
+                      } else {
+                        groupCN.add('active');
+                      }
+
+                      isOpen = !isOpen;
+                    }
+                  })
+                }),
+                mbr.dom('div', { className: 'diff-group__list' }, function (list) {
+                  groups[groupName].forEach(function (file) {
+                    list.append(
+                      mbr.dom('div', { innerText: file.name }, function (fileBlock) {
+                        fileBlock.on({
+                          click: function () {
+                            ifc.modalShow({ title: file.name }, mbr.dom('div'));
+                          }
+                        })
+                      })
+                    );
+                  });
+                })
+              );
+            });
+          }
         }
       })
     );

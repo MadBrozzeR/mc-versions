@@ -9,6 +9,7 @@ const router = {
   '/': PATH.HTML + 'index.html',
   '/src/mbr-dom': PATH.NODE_MODULES + 'mbr-dom/dom.js',
   '/src/mbr-style': PATH.NODE_MODULES + 'mbr-style/index.js',
+  '/favicon.ico': PATH.HTML + 'mbr-mc.ico',
   '/src/main.js': PATH.HTML + 'main.js',
   '/src/style.js': PATH.HTML + 'style.js',
 

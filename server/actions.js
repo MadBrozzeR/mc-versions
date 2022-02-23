@@ -11,10 +11,9 @@ module.exports.versions = function (request) {
 module.exports.diff = function (request) {
   const params = request.getParams();
 
-  git.diff({
-    refs: [params.f, params.s],
-    nameOnly: true
+  git.diffName({
+    refs: [params.f, params.s]
   }).then(function (diff) {
-    request.send(JSON.stringify(diff.toString().split('\n')));
+    request.send(JSON.stringify(diff));
   });
 }
