@@ -10,12 +10,11 @@
   "author": "MadBrozzeR",
   "license": "ISC",
   "dependencies": {
-    "mbr-ajax": "^0.1.0",
     "mbr-dom": "0.2.0",
     "mbr-queue": "2.1.0",
     "mbr-serv": "0.1.0",
-    "mbr-style": "^0.2.0",
+    "mbr-style": "0.2.0",
     "mbr-zip": "0.1.0",
-    "mc-resource": "1.1.0"
+    "mc-resource": "1.1.1"
   }
 }

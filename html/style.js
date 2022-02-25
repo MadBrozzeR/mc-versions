@@ -1,34 +1,43 @@
 var style = {
   '@keyframes rotate': {
     from: {
-      transform: 'rotate(-90deg)'
+      transform: 'rotate(0deg)'
     },
     to: {
-      transform: 'rotate(270deg)'
+      transform: 'rotate(360deg)'
     }
   },
 
   '@keyframes pop': {
     '0%': {
-      transform: 'scale(.1, .1)',
-      opacity: .1
-    },
-    '30%': {
       transform: 'scale(1, 1)',
       opacity: 1
     },
+    '50%': {
+      transform: 'scale(0, 0)',
+      opacity: 0
+    },
+    '80%': {
+      transform: 'scale(0, 0)',
+      opacity: 0
+    },
     '100%': {
-      transform: 'scale(.1, .1)',
-      opacity: .1
+      transform: 'scale(1, 1)',
+      opacity: 1
     }
   },
 
   '*': {
     boxSizing: 'border-box'
   },
+  'html': {
+    height: '100%'
+  },
   'body': {
     backgroundColor: '#022',
-    color: '#eee'
+    color: '#eee',
+    margin: 0,
+    height: '100%'
   },
   '.waiter': {
     width: '64px',
@@ -52,7 +61,7 @@ var style = {
       height: '10px',
       margin: '0 auto',
       marginBottom: '44px',
-      animation: 'pop 1s linear infinite'
+      animation: 'pop .5s linear infinite'
     },
 
     ':after': {
@@ -63,7 +72,7 @@ var style = {
       width: '10px',
       height: '10px',
       margin: '0 auto',
-      animation: 'pop 1s linear .4s infinite'
+      animation: 'pop .5s linear .25s infinite'
     }
   },
   '.modal': {
@@ -160,11 +169,48 @@ var style = {
       }
     }
   },
+  '.mainblock': {
+    height: '100%',
+    paddingTop: '60px'
+  },
+  '.toolbar': {
+    marginTop: '-24px',
+    height: '24px',
+
+    '-button': {
+      height: '100%',
+      border: '1px solid #ddd',
+      borderRadius: '3px',
+      backgroundColor: '#777'
+    }
+  },
   '.version': {
-    cursor: 'pointer',
     margin: '4px 0',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflowX: 'hidden',
+    width: '100%',
+
+    '-list': {
+      height: '50%',
+      overflowY: 'auto',
+      width: '40%'
+    },
+
+    '-download': {
+      opacity: .4,
+      display: 'inline-block',
+      marginRight: '8px',
+      cursor: 'default',
+
+      '.active': {
+        opacity: 1,
+        cursor: 'pointer'
+      }
+    },
 
     '-flag': {
+      cursor: 'pointer',
       display: 'inline-block',
       width: '16px',
       height: '16px',
@@ -180,6 +226,11 @@ var style = {
         backgroundColor: '#00e'
       }
     }
+  },
+  '.diff-list': {
+    height: '50%',
+    width: '40%',
+    overflowY: 'auto'
   },
   '.diff-group': {
     ' .diff-group__head': {

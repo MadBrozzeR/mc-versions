@@ -7,6 +7,7 @@ PATH.ASSETS = PATH.ROOT + '/assets/';
 PATH.JSON = PATH.ROOT + '/json/';
 PATH.VERSION = PATH.JSON + 'version.json';
 PATH.ASSET_INDEX = PATH.JSON + 'assets.json';
+PATH.EXPERIMENTAL = __dirname + '/experimental/';
 
 PATH.HTML = __dirname + '/html/';
 PATH.NODE_MODULES = __dirname + '/node_modules/';

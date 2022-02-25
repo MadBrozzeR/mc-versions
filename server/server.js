@@ -15,6 +15,7 @@ const router = {
 
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },
+  '/act/download': { GET: actions.download },
 }
 
 function process (req, res) {

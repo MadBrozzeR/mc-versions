@@ -2,7 +2,7 @@ window.onload = function () {
   function qs (path, params) {
     var query = '';
 
-    for (var key in params) {
+    for (var key in params) if (params[key]) {
       query += (query ? '&' : '') + key + '=' + encodeURIComponent(params[key]);
     }
 
@@ -18,7 +18,14 @@ window.onload = function () {
         return fetch(qs('/act/diff', {f: params.first, s: params.second}));
       }
 
-      else return Promise.reject(new Error('Both version should be selected'));
+      return Promise.reject(new Error('Both version should be selected'));
+    },
+    download: function (version, fromFile) {
+      if (version) {
+        return fetch(qs('/act/download', {v: version, f: fromFile}));
+      }
+
+      return Promise.reject(new Error('Version should be provided'));
     }
   }
 
@@ -126,8 +133,7 @@ window.onload = function () {
     }
   });
 
-
-  mbr.dom('div', null, function (mainblock) {
+  mbr.dom('div', { className: 'mainblock' }, function (mainblock) {
     mainblock.appendTo(body);
 
     var selectedVersions = {
@@ -136,45 +142,9 @@ window.onload = function () {
     }
 
     mainblock.append(
-      mbr.dom('div', null, function (content) {
-        fetcher(
-          get.versions(),
-          function (response) {
-            content.clear();
-
-            response.forEach(function (version) {
-              content.append(
-                mbr.dom('div', {
-                  className: 'version'
-                }, function (versionBlock) {
-                  var flagCN;
-
-                  versionBlock.on({
-                    click: function (event) {
-                      selectedVersions.first(flagCN, version.name);
-                    },
-                    contextmenu: function (event) {
-                      event.preventDefault();
-
-                      selectedVersions.second(flagCN, version.name);
-                    }
-                  });
-
-                  versionBlock.append(
-                    mbr.dom('span', null, function (flagBlock) {
-                      flagCN = flagBlock.cn('version-flag');
-                    }),
-                    mbr.dom('span', { innerText: version.name })
-                  )
-                })
-              );
-            });
-          }
-        );
-      }),
-      mbr.dom('div', null, function (buttons) {
+      mbr.dom('div', { className: 'toolbar' }, function (buttons) {
         buttons.append(
-          mbr.dom('button', {innerText: 'Diff'}, function (diffButton) {
+          mbr.dom('button', {className: 'toolbar-button', innerText: 'Diff'}, function (diffButton) {
             diffButton.on({
               click: function () {
                 fetcher(
@@ -189,7 +159,73 @@ window.onload = function () {
           })
         )
       }),
-      mbr.dom('div', null, function (difflist) {
+      mbr.dom('div', { className: 'version-list' }, function (content) {
+        fetcher(
+          get.versions(),
+          function (response) {
+            content.clear();
+
+            var versions = response.experimental.concat(
+              response.versions.versions
+            );
+            var downloaded = response.downloaded;
+
+            versions.forEach(function (version) {
+              content.append(
+                mbr.dom('div', { className: 'version' }, function (versionBlock) {
+                  versionBlock.append(
+                    mbr.dom('span', null, function (getButton) {
+                      var isDownloadable = !downloaded.some(function (downloaded) {
+                        return downloaded.name === version.id;
+                      });
+                      var buttonCN = getButton.cn('version-download');
+
+                      function setView() {
+                        if (isDownloadable) {
+                          buttonCN.add('active');
+                        } else {
+                          buttonCN.del('active');
+                        }
+                      }
+
+                      getButton.dom.innerText = '[get]';
+
+                      setView();
+
+                      getButton.on({
+                        click: function () {
+                          if (isDownloadable) {
+                            fetcher(
+                              get.download(version.id, version.fromFile),
+                              () => { isDownloadable = false; setView() }
+                            );
+                          }
+                        }
+                      })
+                    }),
+                    mbr.dom('span', null, function (flagBlock) {
+                      var flagCN = flagBlock.cn('version-flag');
+
+                      flagBlock.on({
+                        click: function () {
+                          selectedVersions.first(flagCN, version.id);
+                        },
+                        contextmenu: function (event) {
+                          event.preventDefault();
+
+                          selectedVersions.second(flagCN, version.id);
+                        }
+                      });
+                    }),
+                    mbr.dom('span', { innerText: version.id })
+                  )
+                })
+              );
+            });
+          }
+        );
+      }),
+      mbr.dom('div', { className: 'diff-list' }, function (difflist) {
         const groupCheck = {
           set: {
             Class: /^.+\.class$/,
