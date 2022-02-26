@@ -2,19 +2,24 @@ export var style = {
   '.diff-block': {
     height: '100%',
 
-    '__compare': {
+    '__compare-wrapper': {
       width: '50%',
       height: '100%',
       overflow: 'auto',
       display: 'inline-block'
     },
 
+    '__compare': {
+      display: 'inline-block'
+    },
+
     '__line': {
       whiteSpace: 'pre',
-      lineHeight: '100%',
+      lineHeight: '1.4em',
+      fontFamily: 'monospace',
 
       '.changed': {
-        backgroundColor: '#700'
+        backgroundColor: '#700',
       },
 
       '.empty': {
@@ -88,20 +93,28 @@ export function Diff (params) {
   const diff = parseDiff(params.diff);
 
   return mbr.dom('div', { className: 'diff-block' }, function (diffBlock) {
-    var left, right;
+    var leftWrapper, rightWrapper, left, right;
 
     diffBlock.append(
-      left = mbr.dom('div', { className: 'diff-block__compare' }, function (block) {
-        block.dom.onscroll = function () {
-          right.dom.scrollTop = left.dom.scrollTop;
-          right.dom.scrollLeft = left.dom.scrollLeft;
-        }
+      leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
+          rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
+        };
+
+        wrapper.append(
+          left = mbr.dom('div', { className: 'diff-block__compare' })
+        );
       }),
-      right = mbr.dom('div', { className: 'diff-block__compare' }, function (block) {
-        block.dom.onscroll = function () {
-          left.dom.scrollTop = right.dom.scrollTop;
-          left.dom.scrollLeft = right.dom.scrollLeft;
-        }
+      rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          leftWrapper.dom.scrollTop = rightWrapper.dom.scrollTop;
+          leftWrapper.dom.scrollLeft = rightWrapper.dom.scrollLeft;
+        };
+
+        wrapper.append(
+          right = mbr.dom('div', { className: 'diff-block__compare' })
+        );
       })
     );
 

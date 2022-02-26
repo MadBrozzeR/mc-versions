@@ -18,11 +18,14 @@ const router = {
   '/components/diff.js': PATH.COMPONENTS + 'diff.js',
   '/components/toolbar.js': PATH.COMPONENTS + 'toolbar.js',
   '/components/version-list.js': PATH.COMPONENTS + 'version-list.js',
+  '/components/waiter.js': PATH.COMPONENTS + 'waiter.js',
+  '/components/modal.js': PATH.COMPONENTS + 'modal.js',
+  '/components/diff-list.js': PATH.COMPONENTS + 'diff-list.js',
 
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },
   '/act/download': { GET: actions.download },
-}
+};
 
 function process (req, res) {
   const request = new Request(req, res);
