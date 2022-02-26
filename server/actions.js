@@ -25,11 +25,29 @@ module.exports.versions = function (request) {
 module.exports.diff = function (request) {
   const params = request.getParams();
 
-  git.diffName({
-    refs: [params.f, params.s]
-  }).then(function (diff) {
-    request.send(JSON.stringify(diff));
-  });
+  if (params.n) {
+    Promise.all([
+      git.diff({
+        refs: [params.f, params.s],
+        path: params.n
+      }),
+      git.show({
+        ref: params.f,
+        file: params.n
+      })
+    ]).then(function ([diff, content]) {
+      request.send(JSON.stringify({
+        content,
+        diff
+      }));
+    });
+  } else {
+    git.diffName({
+      refs: [params.f, params.s]
+    }).then(function (diff) {
+      request.send(JSON.stringify(diff));
+    });
+  }
 }
 
 module.exports.download = function (request) {

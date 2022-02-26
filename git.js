@@ -94,4 +94,31 @@ Git.prototype.diffName = function (params) {
   ));
 }
 
+Git.prototype.diff = function (params) {
+  const attrs = ['-U0'];
+
+  if (params.refs) {
+    attrs.push(...params.refs);
+  }
+
+  if (params.path instanceof Array) {
+    attrs.push('--', ...params.path);
+  } else if (typeof params.path === 'string') {
+    attrs.push('--', params.path);
+  }
+
+  return this.raw('diff', ...attrs)
+    // .then(parseByMatch(
+    //   /@@ ([\d\-,+ ]*) @@\n((?:[+\- ].+\n)+)/gm,
+    //   (match) => ({
+    //     index: match[1],
+    //     lines: match[2]
+    //   })
+    // ))
+}
+
+Git.prototype.show = function (params) {
+  return this.raw('show', params.ref + ':' + params.file);
+}
+
 module.exports = { Git };

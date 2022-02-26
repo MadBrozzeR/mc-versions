@@ -11,5 +11,6 @@ PATH.EXPERIMENTAL = __dirname + '/experimental/';
 
 PATH.HTML = __dirname + '/html/';
 PATH.NODE_MODULES = __dirname + '/node_modules/';
+PATH.COMPONENTS = PATH.HTML + '/components/';
 
 module.exports = PATH;

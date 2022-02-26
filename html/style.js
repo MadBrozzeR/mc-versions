@@ -1,4 +1,6 @@
-var style = {
+import { style as DiffStyle } from '../components/diff.js'
+
+export var style = {
   '@keyframes rotate': {
     from: {
       transform: 'rotate(0deg)'
@@ -171,7 +173,7 @@ var style = {
   },
   '.mainblock': {
     height: '100%',
-    paddingTop: '60px'
+    padding: '60px 5px 5px'
   },
   '.toolbar': {
     marginTop: '-24px',
@@ -184,6 +186,18 @@ var style = {
       backgroundColor: '#777'
     }
   },
+  '.left-panel': {
+    display: 'inline-block',
+    width: '40%',
+    height: '100%'
+  },
+  '.right-panel': {
+    display: 'inline-block',
+    verticalAlign: 'top',
+    height: '100%',
+    width: '60%',
+    overflow: 'auto'
+  },
   '.version': {
     margin: '4px 0',
     whiteSpace: 'nowrap',
@@ -194,7 +208,7 @@ var style = {
     '-list': {
       height: '50%',
       overflowY: 'auto',
-      width: '40%'
+      width: '100%'
     },
 
     '-download': {
@@ -229,7 +243,7 @@ var style = {
   },
   '.diff-list': {
     height: '50%',
-    width: '40%',
+    width: '100%',
     overflowY: 'auto'
   },
   '.diff-group': {
@@ -259,5 +273,6 @@ var style = {
         display: 'block'
       },
     }
-  }
+  },
+  ...DiffStyle
 }
