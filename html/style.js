@@ -1,4 +1,6 @@
-import { style as DiffStyle } from '../components/diff.js'
+import { style as diffStyle } from '../components/diff.js';
+import { style as toolbarStyle } from '../components/toolbar.js';
+import { style as versionListStyle } from '../components/version-list.js';
 
 export var style = {
   '@keyframes rotate': {
@@ -175,17 +177,7 @@ export var style = {
     height: '100%',
     padding: '60px 5px 5px'
   },
-  '.toolbar': {
-    marginTop: '-24px',
-    height: '24px',
-
-    '-button': {
-      height: '100%',
-      border: '1px solid #ddd',
-      borderRadius: '3px',
-      backgroundColor: '#777'
-    }
-  },
+  ...toolbarStyle,
   '.left-panel': {
     display: 'inline-block',
     width: '40%',
@@ -198,49 +190,7 @@ export var style = {
     width: '60%',
     overflow: 'auto'
   },
-  '.version': {
-    margin: '4px 0',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    overflowX: 'hidden',
-    width: '100%',
-
-    '-list': {
-      height: '50%',
-      overflowY: 'auto',
-      width: '100%'
-    },
-
-    '-download': {
-      opacity: .4,
-      display: 'inline-block',
-      marginRight: '8px',
-      cursor: 'default',
-
-      '.active': {
-        opacity: 1,
-        cursor: 'pointer'
-      }
-    },
-
-    '-flag': {
-      cursor: 'pointer',
-      display: 'inline-block',
-      width: '16px',
-      height: '16px',
-      border: '1px solid #ddd',
-      borderRadius: '3px',
-      marginRight: '8px',
-      verticalAlign: 'middle',
-
-      '.first': {
-        backgroundColor: '#0e0'
-      },
-      '.second': {
-        backgroundColor: '#00e'
-      }
-    }
-  },
+  ...versionListStyle,
   '.diff-list': {
     height: '50%',
     width: '100%',
@@ -274,5 +224,5 @@ export var style = {
       },
     }
   },
-  ...DiffStyle
+  ...diffStyle
 }

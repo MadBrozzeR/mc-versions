@@ -1,71 +1,11 @@
 import { Diff } from './components/diff.js';
+import { Toolbar } from './components/toolbar.js';
+import { VersionList } from './components/version-list.js';
 import { style } from './src/style.js';
+import { ifc } from './store.js';
+import { get, fetcher } from './fetchers.js';
 
 window.onload = function () {
-  function qs (path, params) {
-    var query = '';
-
-    for (var key in params) if (params[key]) {
-      query += (query ? '&' : '') + key + '=' + encodeURIComponent(params[key]);
-    }
-
-    return path + (query ? ('?' + query) : '');
-  }
-
-  var get = {
-    versions: function () {
-      return fetch('/act/versions');
-    },
-    diff: function (params) {
-      if (params.first && params.second) {
-        return fetch(qs('/act/diff', {f: params.first, s: params.second, n: params.file}));
-      }
-
-      return Promise.reject(new Error('Both version should be selected'));
-    },
-    download: function (version, fromFile) {
-      if (version) {
-        return fetch(qs('/act/download', {v: version, f: fromFile}));
-      }
-
-      return Promise.reject(new Error('Version should be provided'));
-    }
-  }
-
-  var ifc = {};
-
-  function fetcher (request, onSuccess) {
-    ifc.waiterShow();
-
-    return request
-      .then(function (response) {
-        ifc.waiterHide();
-
-        return response.json();
-      })
-      .then(onSuccess);
-  }
-
-  function cnSwitcher (name, value) {
-    var store = value;
-    var lastCN = null;
-
-    function switcher(cn, value) {
-      if (lastCN) {
-        lastCN.del(name);
-      }
-
-      lastCN = cn.add(name);
-
-      store = value;
-    }
-
-    switcher.get = function () {
-      return store;
-    }
-
-    return switcher;
-  }
 
   var body = document.getElementsByTagName('body')[0];
   var head = document.getElementsByTagName('head')[0];
@@ -139,97 +79,11 @@ window.onload = function () {
   mbr.dom('div', { className: 'mainblock' }, function (mainblock) {
     mainblock.appendTo(body);
 
-    var selectedVersions = {
-      first: cnSwitcher('first'),
-      second: cnSwitcher('second')
-    }
-
     mainblock.append(
-      mbr.dom('div', { className: 'toolbar' }, function (buttons) {
-        buttons.append(
-          mbr.dom('button', {className: 'toolbar-button', innerText: 'Diff'}, function (diffButton) {
-            diffButton.on({
-              click: function () {
-                fetcher(
-                  get.diff({
-                    first: selectedVersions.first.get(),
-                    second: selectedVersions.second.get()
-                  }),
-                  (response) => ifc.difflist(response)
-                )
-              }
-            })
-          })
-        )
-      }),
+      Toolbar(),
       mbr.dom('div', { className: 'left-panel' }, function (leftPanel) {
         leftPanel.append(
-          mbr.dom('div', { className: 'version-list' }, function (content) {
-            fetcher(
-              get.versions(),
-              function (response) {
-                content.clear();
-
-                var versions = response.experimental.concat(
-                  response.versions.versions
-                );
-                var downloaded = response.downloaded;
-
-                versions.forEach(function (version) {
-                  content.append(
-                    mbr.dom('div', { className: 'version' }, function (versionBlock) {
-                      versionBlock.append(
-                        mbr.dom('span', null, function (getButton) {
-                          var isDownloadable = !downloaded.some(function (downloaded) {
-                            return downloaded.name === version.id;
-                          });
-                          var buttonCN = getButton.cn('version-download');
-
-                          function setView() {
-                            if (isDownloadable) {
-                              buttonCN.add('active');
-                            } else {
-                              buttonCN.del('active');
-                            }
-                          }
-
-                          getButton.dom.innerText = '[get]';
-
-                          setView();
-
-                          getButton.on({
-                            click: function () {
-                              if (isDownloadable) {
-                                fetcher(
-                                  get.download(version.id, version.fromFile),
-                                  () => { isDownloadable = false; setView() }
-                                );
-                              }
-                            }
-                          })
-                        }),
-                        mbr.dom('span', null, function (flagBlock) {
-                          var flagCN = flagBlock.cn('version-flag');
-
-                          flagBlock.on({
-                            click: function () {
-                              selectedVersions.first(flagCN, version.id);
-                            },
-                            contextmenu: function (event) {
-                              event.preventDefault();
-
-                              selectedVersions.second(flagCN, version.id);
-                            }
-                          });
-                        }),
-                        mbr.dom('span', { innerText: version.id })
-                      )
-                    })
-                  );
-                });
-              }
-            );
-          }),
+          VersionList(),
           mbr.dom('div', { className: 'diff-list' }, function (difflist) {
             const groupCheck = {
               set: {

@@ -12,8 +12,12 @@ const router = {
   '/favicon.ico': PATH.HTML + 'mbr-mc.ico',
   '/src/style.js': PATH.HTML + 'style.js',
   '/main.js': PATH.HTML + 'main.js',
+  '/fetchers.js': PATH.HTML + 'fetchers.js',
+  '/store.js': PATH.HTML + 'store.js',
 
   '/components/diff.js': PATH.COMPONENTS + 'diff.js',
+  '/components/toolbar.js': PATH.COMPONENTS + 'toolbar.js',
+  '/components/version-list.js': PATH.COMPONENTS + 'version-list.js',
 
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },
