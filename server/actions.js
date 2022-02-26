@@ -37,6 +37,7 @@ module.exports.diff = function (request) {
       })
     ]).then(function ([diff, content]) {
       request.send(JSON.stringify({
+        type: 'text',
         content,
         diff
       }));

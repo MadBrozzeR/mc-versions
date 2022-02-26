@@ -2,7 +2,7 @@ import { DiffList } from './components/diff-list.js';
 import { Toolbar } from './components/toolbar.js';
 import { VersionList } from './components/version-list.js';
 import { Modal } from './components/modal.js';
-import { style } from './src/style.js';
+import { style } from './styles/index.js';
 import { ifc } from './store.js';
 
 window.onload = function () {

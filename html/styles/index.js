@@ -1,3 +1,4 @@
+import { keyframes } from './animation.js';
 import { style as diffStyle } from '../components/diff.js';
 import { style as toolbarStyle } from '../components/toolbar.js';
 import { style as versionListStyle } from '../components/version-list.js';
@@ -6,33 +7,7 @@ import { style as modalStyle } from '../components/modal.js';
 import { style as diffListStyle } from '../components/diff-list.js';
 
 export var style = {
-  '@keyframes rotate': {
-    from: {
-      transform: 'rotate(0deg)'
-    },
-    to: {
-      transform: 'rotate(360deg)'
-    }
-  },
-
-  '@keyframes pop': {
-    '0%': {
-      transform: 'scale(1, 1)',
-      opacity: 1
-    },
-    '50%': {
-      transform: 'scale(0, 0)',
-      opacity: 0
-    },
-    '80%': {
-      transform: 'scale(0, 0)',
-      opacity: 0
-    },
-    '100%': {
-      transform: 'scale(1, 1)',
-      opacity: 1
-    }
-  },
+  ...keyframes,
 
   '*': {
     boxSizing: 'border-box'
