@@ -1,4 +1,4 @@
-import { DiffList } from './components/diff-list.js';
+// import { DiffList } from './components/diff-list.js';
 import { Toolbar } from './components/toolbar.js';
 import { VersionList } from './components/version-list.js';
 import { Modal } from './components/modal.js';
@@ -21,7 +21,7 @@ window.onload = function () {
       mbr.dom('div', { className: 'left-panel' }, function (leftPanel) {
         leftPanel.append(
           VersionList(),
-          DiffList()
+          // DiffList()
         )
       }),
       mbr.dom('div', { className: 'right-panel' }, function (rightPanel) {

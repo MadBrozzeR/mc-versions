@@ -5,6 +5,16 @@ const actions = require('./actions.js');
 
 const PORT = 9210;
 
+function componentsRouter (components) {
+  const result = {};
+
+  for (let index = 0 ; index < components.length ; ++index) {
+    result['/components/' + components[index]] = PATH.COMPONENTS + components[index];
+  }
+
+  return result;
+}
+
 const router = {
   '/': PATH.HTML + 'index.html',
   '/src/mbr-dom': PATH.NODE_MODULES + 'mbr-dom/dom.js',
@@ -16,12 +26,15 @@ const router = {
   '/fetchers.js': PATH.HTML + 'fetchers.js',
   '/store.js': PATH.HTML + 'store.js',
 
-  '/components/diff.js': PATH.COMPONENTS + 'diff.js',
-  '/components/toolbar.js': PATH.COMPONENTS + 'toolbar.js',
-  '/components/version-list.js': PATH.COMPONENTS + 'version-list.js',
-  '/components/waiter.js': PATH.COMPONENTS + 'waiter.js',
-  '/components/modal.js': PATH.COMPONENTS + 'modal.js',
-  '/components/diff-list.js': PATH.COMPONENTS + 'diff-list.js',
+  ...componentsRouter([
+    'diff.js',
+    'toolbar.js',
+    'version-list.js',
+    'waiter.js',
+    'modal.js',
+    'diff-list.js',
+    'diff-pane.js',
+  ]),
 
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },

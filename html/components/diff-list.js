@@ -1,10 +1,10 @@
-import { get, fetcher } from '../fetchers.js';
-import { ifc, selectedVersions } from '../store.js';
-import { Diff } from './diff.js';
+// import { get, fetcher } from '../fetchers.js';
+// import { ifc, selectedVersions } from '../store.js';
+// import { Diff } from './diff.js';
 
 export const style = {
   '.diff-list': {
-    height: '50%',
+    height: '100%',
     width: '100%',
     overflowY: 'auto'
   },
@@ -38,69 +38,68 @@ export const style = {
   },
 };
 
-export function DiffList() {
-  return mbr.dom('div', { className: 'diff-list' }, function (difflist) {
-    const groupCheck = {
-      set: {
-        Class: /^.+\.class$/,
-        Meta: /^(?:client|server)\/META-INF\/.+$/,
-        VersionInfo: /^(?:client|server|json)\/(version|assets).json$/,
-        Structures: /^client\/data\/minecraft\/structures\/.+\.nbt$/,
-        Assets: /^assets\/.+$/,
-        'Client Data': /^client\/.+$/,
-        'Server Data': /^server\/.+$/,
-      },
-      check: function (file) {
-        for (var key in this.set) {
-          if (this.set[key].test(file.name)) {
-            return key;
-          }
-        }
-
-        return 'Other';
-      },
-      getGroups: function () {
-        var result = {};
-
-        for (var name in this.set) {
-          result[name] = [];
-        }
-        result.Other = [];
-
-        return result;
+const groupCheck = {
+  set: {
+    Class: /^.+\.class$/,
+    Meta: /^(?:client|server)\/META-INF\/.+$/,
+    VersionInfo: /^(?:client|server|json)\/(version|assets).json$/,
+    Structures: /^client\/data\/minecraft\/structures\/.+\.nbt$/,
+    Assets: /^assets\/.+$/,
+    'Client Data': /^client\/.+$/,
+    'Server Data': /^server\/.+$/,
+  },
+  check: function (file) {
+    for (var key in this.set) {
+      if (this.set[key].test(file.name)) {
+        return key;
       }
-    };
+    }
 
-    ifc.difflist = function (files) {
-      difflist.clear();
+    return 'Other';
+  },
+  getGroups: function () {
+    var result = {};
 
-      var groups = groupCheck.getGroups();
+    for (var name in this.set) {
+      result[name] = [];
+    }
+    result.Other = [];
 
-      files.forEach(function (file) {
-        const group = groupCheck.check(file);
+    return result;
+  }
+};
 
-        groups[group].push(file);
-      });
+export function DiffList({ onSelect }) {
+  return mbr.dom('div', { className: 'diff-list' }, function (difflist) {
+    difflist.ifc = {
+      set: function (files) {
+        difflist.clear();
+        var groups = groupCheck.getGroups();
 
-      for (var groupName in groups) {
-        if (groups[groupName].length === 0) {
-          continue;
-        }
+        files.forEach(function (file) {
+          const group = groupCheck.check(file);
 
-        mbr.dom('div', null, function (diffGroup) {
-          diffGroup.appendTo(difflist);
-          var groupCN = diffGroup.cn('diff-group');
-          var isOpen = false;
+          groups[group].push(file);
+        });
 
-          diffGroup.append(
-            mbr.dom('div', { className: 'diff-group__head' }, function (head) {
-              head.append(
-                mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
-                mbr.dom('span', { className: 'diff-group__title', innerText: groupName })
-              );
+        for (var groupName in groups) {
+          if (groups[groupName].length === 0) {
+            continue;
+          }
 
-              head.on({
-                click: function () {
+          mbr.dom('div', null, function (diffGroup) {
+            diffGroup.appendTo(difflist);
+            var groupCN = diffGroup.cn('diff-group');
+            var isOpen = false;
+
+            diffGroup.append(
+              mbr.dom('div', { className: 'diff-group__head' }, function (head) {
+                head.append(
+                  mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
+                  mbr.dom('span', { className: 'diff-group__title', innerText: groupName })
+                );
+
+                head.dom.onclick = function () {
                   if (isOpen) {
                     groupCN.del('active');
                   } else {
@@ -109,32 +108,21 @@ export function DiffList() {
 
                   isOpen = !isOpen;
                 }
-              })
-            }),
-            mbr.dom('div', { className: 'diff-group__list' }, function (list) {
-              groups[groupName].forEach(function (file) {
-                list.append(
-                  mbr.dom('div', { innerText: file.name }, function (fileBlock) {
-                    fileBlock.on({
-                      click: function () {
-                        fetcher(
-                          get.diff({
-                            first: selectedVersions.first.get(),
-                            second: selectedVersions.second.get(),
-                            file: file.name
-                          }),
-                          (result) => {
-                            ifc.rightPanel(Diff(result));
-                          }
-                        );
+              }),
+              mbr.dom('div', { className: 'diff-group__list' }, function (list) {
+                groups[groupName].forEach(function (file) {
+                  list.append(
+                    mbr.dom('div', { innerText: file.name }, function (fileBlock) {
+                      fileBlock.dom.onclick = function () {
+                        onSelect(file);
                       }
                     })
-                  })
-                );
-              });
-            })
-          );
-        });
+                  );
+                });
+              })
+            );
+          });
+        }
       }
     }
   })

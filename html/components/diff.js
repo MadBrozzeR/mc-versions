@@ -10,7 +10,8 @@ export var style = {
     },
 
     '__compare': {
-      display: 'inline-block'
+      display: 'inline-block',
+      minWidth: '100%'
     },
 
     '__line': {
@@ -88,63 +89,66 @@ function Line ({ number, text, changed } = {}) {
   });
 }
 
-export function Diff (params) {
-  const content = params.content.split('\n');
-  const diff = parseDiff(params.diff);
-
+export function Diff () {
   return mbr.dom('div', { className: 'diff-block' }, function (diffBlock) {
-    var leftWrapper, rightWrapper, left, right;
+    diffBlock.ifc = {
+      set: function (params) {
+        const content = params.content.split('\n');
+        const diff = parseDiff(params.diff);
+        var leftWrapper, rightWrapper, left, right;
 
-    diffBlock.append(
-      leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
-        wrapper.dom.onscroll = function () {
-          rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
-          rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
-        };
+        diffBlock.clear().append(
+          leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+            wrapper.dom.onscroll = function () {
+              rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
+              rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
+            };
 
-        wrapper.append(
-          left = mbr.dom('div', { className: 'diff-block__compare' })
+            wrapper.append(
+              left = mbr.dom('div', { className: 'diff-block__compare' })
+            );
+          }),
+          rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+            wrapper.dom.onscroll = function () {
+              leftWrapper.dom.scrollTop = rightWrapper.dom.scrollTop;
+              leftWrapper.dom.scrollLeft = rightWrapper.dom.scrollLeft;
+            };
+
+            wrapper.append(
+              right = mbr.dom('div', { className: 'diff-block__compare' })
+            );
+          })
         );
-      }),
-      rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
-        wrapper.dom.onscroll = function () {
-          leftWrapper.dom.scrollTop = rightWrapper.dom.scrollTop;
-          leftWrapper.dom.scrollLeft = rightWrapper.dom.scrollLeft;
-        };
 
-        wrapper.append(
-          right = mbr.dom('div', { className: 'diff-block__compare' })
-        );
-      })
-    );
+        let rightIndex = 1;
 
-    let rightIndex = 1;
+        for (let index = 0 ; index < content.length ; ++index) {
+          let lineNumber = index + 1;
 
-    for (let index = 0 ; index < content.length ; ++index) {
-      let lineNumber = index + 1;
-
-      if (lineNumber in diff) {
-        const {lines, replace} = diff[lineNumber];
-        index += lines.length - 1;
-        let difference = lines.length - replace.length;
-        lines.forEach(function (line, index) {
-          left.append(Line({ number: lineNumber + index, text: line, changed: true }));
-        });
-        replace.forEach(function (line) {
-          right.append(Line({ number: rightIndex++, text: line, changed: true }));
-        });
-        if (difference > 0) {
-          while (difference--) {
-            right.append(Line({ chaned: true }));
-          }
-        } else if (difference < 0) {
-          while (difference++) {
-            left.append(Line({ chaned: true }));
+          if (lineNumber in diff) {
+            const {lines, replace} = diff[lineNumber];
+            index += lines.length - 1;
+            let difference = lines.length - replace.length;
+            lines.forEach(function (line, index) {
+              left.append(Line({ number: lineNumber + index, text: line, changed: true }));
+            });
+            replace.forEach(function (line) {
+              right.append(Line({ number: rightIndex++, text: line, changed: true }));
+            });
+            if (difference > 0) {
+              while (difference--) {
+                right.append(Line({ chaned: true }));
+              }
+            } else if (difference < 0) {
+              while (difference++) {
+                left.append(Line({ chaned: true }));
+              }
+            }
+          } else {
+            left.append(Line({ number: lineNumber, text: content[index]}));
+            right.append(Line({ number: rightIndex++, text: content[index]}));
           }
         }
-      } else {
-        left.append(Line({ number: lineNumber, text: content[index]}));
-        right.append(Line({ number: rightIndex++, text: content[index]}));
       }
     }
   });

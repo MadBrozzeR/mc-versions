@@ -1,5 +1,5 @@
-import { get, fetcher } from '../fetchers.js'
-import { ifc, selectedVersions } from '../store.js';
+import { ifc } from '../store.js';
+import { DiffPane } from './diff-pane.js';
 
 export const style = {
   '.toolbar': {
@@ -21,13 +21,7 @@ export function Toolbar() {
       mbr.dom('button', {className: 'toolbar-button', innerText: 'Diff'}, function (diffButton) {
         diffButton.on({
           click: function () {
-            fetcher(
-              get.diff({
-                first: selectedVersions.first.get(),
-                second: selectedVersions.second.get()
-              }),
-              (response) => ifc.difflist(response)
-            )
+            ifc.rightPanel(DiffPane());
           }
         })
       })

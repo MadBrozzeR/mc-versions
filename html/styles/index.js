@@ -5,6 +5,7 @@ import { style as versionListStyle } from '../components/version-list.js';
 import { style as waiterStyle } from '../components/waiter.js';
 import { style as modalStyle } from '../components/modal.js';
 import { style as diffListStyle } from '../components/diff-list.js';
+import { style as diffPaneStyle } from '../components/diff-pane.js';
 
 export var style = {
   ...keyframes,
@@ -27,14 +28,14 @@ export var style = {
   },
   '.left-panel': {
     display: 'inline-block',
-    width: '40%',
+    width: '20%',
     height: '100%'
   },
   '.right-panel': {
     display: 'inline-block',
     verticalAlign: 'top',
     height: '100%',
-    width: '60%',
+    width: '80%',
     overflow: 'auto'
   },
   ...waiterStyle,
@@ -42,5 +43,6 @@ export var style = {
   ...toolbarStyle,
   ...versionListStyle,
   ...diffStyle,
-  ...diffListStyle
-}
+  ...diffListStyle,
+  ...diffPaneStyle,
+};

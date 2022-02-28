@@ -10,7 +10,7 @@ export const style = {
     width: '100%',
 
     '-list': {
-      height: '50%',
+      height: '100%',
       overflowY: 'auto',
       width: '100%'
     },
