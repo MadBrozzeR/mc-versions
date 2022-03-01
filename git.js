@@ -71,7 +71,7 @@ Git.prototype.branch = function () {
 }
 
 Git.prototype.diffName = function (params) {
-  const attrs = ['--name-status', '-l0'];
+  const attrs = ['--numstat', '-l0', '-z'];
 
   if (params.refs) {
     attrs.push(...params.refs);
@@ -84,12 +84,11 @@ Git.prototype.diffName = function (params) {
   }
 
   return this.raw('diff', ...attrs).then(parseByMatch(
-    /(\w)(\d*)\s+(?:(.+?)\t)?(.+)\n/g,
+    /(\d+|-)\t(\d+|-)\t(?:\000(.+?)\000)?(.+?)\000/g,
     (match) => ({
       name: match[4],
       oldName: match[3],
-      type: match[1],
-      score: match[2] ? parseInt(match[2], 10) : 0
+      changed: match[1] === '-' ? [] : [parseInt(match[1], 10), parseInt(match[2], 10)]
     })
   ));
 }

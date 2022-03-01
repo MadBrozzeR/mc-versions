@@ -1,7 +1,3 @@
-// import { get, fetcher } from '../fetchers.js';
-// import { ifc, selectedVersions } from '../store.js';
-// import { Diff } from './diff.js';
-
 export const style = {
   '.diff-list': {
     height: '100%',
@@ -134,7 +130,14 @@ export function DiffList({ onSelect }) {
               mbr.dom('div', { className: 'diff-group__list' }, function (list) {
                 groups[groupName].forEach(function (file) {
                   list.append(
-                    mbr.dom('div', { className: 'diff-group__file', innerText: file.name }, function (fileBlock) {
+                    mbr.dom('div', {
+                      className: 'diff-group__file',
+                      innerText: file.name + (
+                        file.changed.length
+                          ? (' [' + file.changed.join('/') + ']')
+                          : ''
+                        ),
+                    }, function (fileBlock) {
                       fileBlock.dom.onclick = function () {
                         onSelect(file);
                       }
