@@ -25,6 +25,7 @@ const router = {
   '/main.js': PATH.HTML + 'main.js',
   '/fetchers.js': PATH.HTML + 'fetchers.js',
   '/store.js': PATH.HTML + 'store.js',
+  '/utils.js': PATH.HTML + 'utils.js',
 
   ...componentsRouter([
     'diff.js',

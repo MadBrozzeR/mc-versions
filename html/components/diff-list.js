@@ -1,3 +1,5 @@
+import { cnSwitcher } from "../utils.js";
+
 export const style = {
   '.diff-list': {
     height: '100%',
@@ -41,6 +43,10 @@ export const style = {
 
       ':hover': {
         color: '#bbf'
+      },
+
+      '.active': {
+        color: '#99d'
       }
     },
 
@@ -91,6 +97,7 @@ export function DiffList({ onSelect }) {
     difflist.ifc = {
       set: function (files) {
         difflist.clear();
+        var selectedFile = cnSwitcher('active');
         var groups = groupCheck.getGroups();
 
         files.forEach(function (file) {
@@ -131,14 +138,15 @@ export function DiffList({ onSelect }) {
                 groups[groupName].forEach(function (file) {
                   list.append(
                     mbr.dom('div', {
-                      className: 'diff-group__file',
                       innerText: file.name + (
                         file.changed.length
                           ? (' [' + file.changed.join('/') + ']')
                           : ''
                         ),
                     }, function (fileBlock) {
+                      var fileCN = fileBlock.cn( 'diff-group__file');
                       fileBlock.dom.onclick = function () {
+                        selectedFile(fileCN);
                         onSelect(file);
                       }
                     })

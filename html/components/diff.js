@@ -35,7 +35,8 @@ export var style = {
         zIndex: 1,
         textAlign: 'center',
         boxShadow: '0 0 3px 0 #011',
-        opacity: 0
+        opacity: 0,
+        transition: '.2s opacity ease-in-out'
       },
 
       '-button': {
@@ -91,9 +92,14 @@ export var style = {
 }
 
 const RE = {
-  DIFF: /@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@\n((?:[+\- ].+\n)+)/g,
+  DIFF: /@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?:.*)\n((?:[+\- ].+[\n\r]+)+)/g,
   LINE: /([-+])(.+)\n/g
 }
+
+const HIDER = {
+  MIN_UNCHANGED: 3,
+  INCREMENT: 5
+};
 
 function parseDiff (raw) {
   var regMatch, lineRegMatch;
@@ -138,8 +144,9 @@ function Line ({ number, text, changed } = {}) {
 function Hider (parent) {
   return mbr.dom('div', { className: 'diff-block__hider' }, function (hider) {
     const items = [];
-    let threshold = 3;
+    let threshold = HIDER.MIN_UNCHANGED
     let hidden = false;
+    let inSyncWith = null;
 
     const separator = mbr.dom('div', { className: 'diff-block__hider-separator' }, function (block) {
       block.append(
@@ -149,14 +156,18 @@ function Hider (parent) {
               className: 'diff-block__hider-button',
               innerHTML: '&ndash;',
               onclick: function () {
-                hider.ifc.eval(-5);
+                if (threshold > HIDER.MIN_UNCHANGED) {
+                  hider.ifc.eval(- HIDER.INCREMENT);
+                  inSyncWith && inSyncWith.ifc.eval(- HIDER.INCREMENT);
+                }
               }
             }),
             mbr.dom('span', {
               className: 'diff-block__hider-button',
               innerText: '+',
               onclick: function () {
-                hider.ifc.eval(5);
+                hider.ifc.eval(HIDER.INCREMENT);
+                inSyncWith && inSyncWith.ifc.eval(HIDER.INCREMENT);
               }
             })
           );
@@ -193,10 +204,13 @@ function Hider (parent) {
             items[index].del('hidden');
           }
         }
+      },
+      syncWith: function (hider) {
+        inSyncWith = hider;
       }
     };
 
-    queueMicrotask(function () { hider.ifc.eval() });
+    Promise.resolve().then(function () { hider.ifc.eval() });
   });
 }
 
@@ -262,6 +276,8 @@ export function Diff () {
             if (newHider) {
               hiders.left = Hider(left);
               hiders.right = Hider(right);
+              hiders.left.ifc.syncWith(hiders.right);
+              hiders.right.ifc.syncWith(hiders.left);
               newHider = false;
             }
 
