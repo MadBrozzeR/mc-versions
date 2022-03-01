@@ -9,22 +9,43 @@ export const style = {
     overflowY: 'auto'
   },
   '.diff-group': {
-    ' .diff-group__head': {
+    '__head': {
       padding: '4px',
       fontSize: '24px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+
+      ':hover': {
+        color: '#bbf'
+      }
     },
-    ' .diff-group__title': {
+    '__title': {
       display: 'inline-block',
-      marginLeft: '8px'
+      marginLeft: '8px',
     },
-    ' .diff-group__arrow': {
+    '__counter': {
+      ':before': {
+        display: 'inline',
+        content: '" ("'
+      },
+      ':after': {
+        display: 'inline',
+        content: '")"'
+      }
+    },
+    '__arrow': {
       display: 'inline-block',
       transition: '.2s transform ease-in-out'
     },
-    ' .diff-group__list': {
+    '__list': {
       display: 'none',
       paddingLeft: '24px'
+    },
+    '__file': {
+      cursor: 'pointer',
+
+      ':hover': {
+        color: '#bbf'
+      }
     },
 
     '.active': {
@@ -42,7 +63,7 @@ const groupCheck = {
   set: {
     Class: /^.+\.class$/,
     Meta: /^(?:client|server)\/META-INF\/.+$/,
-    VersionInfo: /^(?:client|server|json)\/(version|assets).json$/,
+    'Version Info': /^(?:client|server|json)\/(version|assets).json$/,
     Structures: /^client\/data\/minecraft\/structures\/.+\.nbt$/,
     Assets: /^assets\/.+$/,
     'Client Data': /^client\/.+$/,
@@ -96,7 +117,8 @@ export function DiffList({ onSelect }) {
               mbr.dom('div', { className: 'diff-group__head' }, function (head) {
                 head.append(
                   mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
-                  mbr.dom('span', { className: 'diff-group__title', innerText: groupName })
+                  mbr.dom('span', { className: 'diff-group__title', innerText: groupName }),
+                  mbr.dom('span', { className: 'diff-group__counter', innerText: groups[groupName].length })
                 );
 
                 head.dom.onclick = function () {
@@ -112,7 +134,7 @@ export function DiffList({ onSelect }) {
               mbr.dom('div', { className: 'diff-group__list' }, function (list) {
                 groups[groupName].forEach(function (file) {
                   list.append(
-                    mbr.dom('div', { innerText: file.name }, function (fileBlock) {
+                    mbr.dom('div', { className: 'diff-group__file', innerText: file.name }, function (fileBlock) {
                       fileBlock.dom.onclick = function () {
                         onSelect(file);
                       }

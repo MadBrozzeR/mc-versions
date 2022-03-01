@@ -11,7 +11,21 @@ export var style = {
   ...keyframes,
 
   '*': {
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+
+    '::-webkit-scrollbar': {
+      width: '6px',
+
+      '-track': {
+        backgroundColor: '#011',
+        borderRadius: '3px'
+      },
+
+      '-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '3px'
+      }
+    }
   },
   'html': {
     height: '100%'
