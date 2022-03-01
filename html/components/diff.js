@@ -14,6 +14,48 @@ export var style = {
       minWidth: '100%'
     },
 
+    '__hider': {
+      display: 'block',
+      width: '100%',
+
+      '-separator': {
+        height: '3px',
+        backgroundColor: '#244',
+        position: 'relative'
+      },
+
+      '-buttons': {
+        width: '40px',
+        lineHeight: '18px',
+        position: 'absolute',
+        left: '5px',
+        top: '-8px',
+        backgroundColor: '#355',
+        borderRadius: '9px',
+        zIndex: 1,
+        textAlign: 'center',
+        boxShadow: '0 0 3px 0 #011',
+        opacity: 0
+      },
+
+      '-button': {
+        display: 'inline-block',
+        padding: '0 2px',
+        color: '#ddd',
+        cursor: 'pointer',
+
+        ':hover': {
+          color: '#bbf'
+        }
+      },
+
+      ':hover': {
+        ' .diff-block__hider-buttons': {
+          opacity: 1
+        }
+      }
+    },
+
     '__line': {
       whiteSpace: 'pre',
       lineHeight: '1.4em',
@@ -25,6 +67,10 @@ export var style = {
 
       '.empty': {
         backgroundColor: '#000'
+      },
+
+      '.hidden': {
+        display: 'none'
       }
     },
 
@@ -89,6 +135,71 @@ function Line ({ number, text, changed } = {}) {
   });
 }
 
+function Hider (parent) {
+  return mbr.dom('div', { className: 'diff-block__hider' }, function (hider) {
+    const items = [];
+    let threshold = 3;
+    let hidden = false;
+
+    const separator = mbr.dom('div', { className: 'diff-block__hider-separator' }, function (block) {
+      block.append(
+        mbr.dom('div', { className: 'diff-block__hider-buttons' }, function (buttons) {
+          buttons.append(
+            mbr.dom('span', {
+              className: 'diff-block__hider-button',
+              innerHTML: '&ndash;',
+              onclick: function () {
+                hider.ifc.eval(-5);
+              }
+            }),
+            mbr.dom('span', {
+              className: 'diff-block__hider-button',
+              innerText: '+',
+              onclick: function () {
+                hider.ifc.eval(5);
+              }
+            })
+          );
+        })
+      );
+    });
+
+    if (parent) {
+      hider.appendTo(parent);
+    }
+
+    hider.ifc = {
+      push: function (line) {
+        items.push(line.cn());
+        hider.append(line);
+      },
+      eval: function (delta) {
+        (delta) && (threshold += delta);
+
+        if (hidden) {
+          hider.dom.removeChild(separator.dom);
+          hidden = false;
+        }
+
+        for (let index = 0 ; index < items.length ; ++index) {
+          const level = Math.min(index + 1, items.length - index);
+          if (level > threshold) {
+            if (!hidden) {
+              hidden = true;
+              items[index].element.parentNode.insertBefore(separator.dom, items[index].element);
+            }
+            items[index].add('hidden');
+          } else {
+            items[index].del('hidden');
+          }
+        }
+      }
+    };
+
+    queueMicrotask(function () { hider.ifc.eval() });
+  });
+}
+
 export function Diff () {
   return mbr.dom('div', { className: 'diff-block' }, function (diffBlock) {
     diffBlock.ifc = {
@@ -96,6 +207,8 @@ export function Diff () {
         const content = params.content.split('\n');
         const diff = parseDiff(params.diff);
         var leftWrapper, rightWrapper, left, right;
+        let hiders = { left: null, right: null };
+        let newHider = true;
 
         diffBlock.clear().append(
           leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
@@ -126,6 +239,7 @@ export function Diff () {
           let lineNumber = index + 1;
 
           if (lineNumber in diff) {
+            newHider = true;
             const {lines, replace} = diff[lineNumber];
             index += lines.length - 1;
             let difference = lines.length - replace.length;
@@ -145,8 +259,14 @@ export function Diff () {
               }
             }
           } else {
-            left.append(Line({ number: lineNumber, text: content[index]}));
-            right.append(Line({ number: rightIndex++, text: content[index]}));
+            if (newHider) {
+              hiders.left = Hider(left);
+              hiders.right = Hider(right);
+              newHider = false;
+            }
+
+            hiders.left.ifc.push(Line({ number: lineNumber, text: content[index]}));
+            hiders.right.ifc.push(Line({ number: rightIndex++, text: content[index]}));
           }
         }
       }

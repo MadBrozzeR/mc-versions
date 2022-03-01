@@ -1,4 +1,5 @@
 const { LoadQueue } = require('mbr-queue');
+const nbt = require('nbt-reader');
 const PATH = require('../path.js')
 const { Git } = require('../git.js');
 const { UnZIP, writeFile, toJSON, clearDir } = require('../utils.js');
@@ -12,6 +13,23 @@ function clear() {
     .catch(noop).then(() => clearDir(PATH.SERVER, { verbose: true }))
     .catch(noop).then(() => clearDir(PATH.JSON, { verbose: true }))
     .catch(noop).then(noop);
+}
+
+function prepareUnzipData(name, data) {
+  if (name.substring(name.length - 4) === '.nbt') {
+    return new Promise(function (resolve) {
+      nbt.read(data, function (error, newData) {
+        if (error) {
+          console.error(error);
+          resolve(data);
+        } else {
+          resolve(JSON.stringify(newData, null, 2));
+        }
+      });
+    });
+  }
+
+  return Promise.resolve(data);
 }
 
 function downloadAssets(version, options = {}) {
@@ -58,7 +76,7 @@ async function unpackVersion (version) {
   console.log('Downoloading client')
   const client = await version.getClient();
   console.log('Unpacking client')
-  client && await UnZIP(client, PATH.CLIENT);
+  client && await UnZIP(client, PATH.CLIENT, prepareUnzipData);
 
   console.log('Downoloading server')
   const server = await version.getServer();

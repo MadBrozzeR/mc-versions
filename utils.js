@@ -59,7 +59,7 @@ function writeFile(name, data) {
   });
 }
 
-function UnZIP(buffer, dir = '') {
+function UnZIP(buffer, dir = '', prepare) {
   return new Promise(function (resolve) {
     const zip = new MBRZip(buffer);
 
@@ -75,7 +75,13 @@ function UnZIP(buffer, dir = '') {
             if (error) {
               queue.done();
             } else {
-              writeFile(name, data).then(function () {queue.done()});
+              if (prepare) {
+                prepare(name, data).then(function (data) {
+                  writeFile(name, data).then(function () {queue.done()});
+                });
+              } else {
+                writeFile(name, data).then(function () {queue.done()});
+              }
             }
           })
         }

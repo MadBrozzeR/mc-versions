@@ -61,7 +61,7 @@ module.exports.download = function (request) {
   promise
     .then(unpackVersion)
     .then(function () {
-      request.send();
+      request.send('{}');
     })
     .catch(function (error) {
       console.error(error);

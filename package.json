@@ -15,6 +15,7 @@
     "mbr-serv": "0.1.0",
     "mbr-style": "0.2.0",
     "mbr-zip": "0.1.0",
-    "mc-resource": "1.1.1"
+    "mc-resource": "1.1.1",
+    "nbt-reader": "^1.1.0"
   }
 }

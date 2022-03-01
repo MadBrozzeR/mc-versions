@@ -15,6 +15,7 @@ export var style = {
 
     '::-webkit-scrollbar': {
       width: '6px',
+      height: '6px',
 
       '-track': {
         backgroundColor: '#011',
@@ -24,6 +25,11 @@ export var style = {
       '-thumb': {
         backgroundColor: '#555',
         borderRadius: '3px'
+      },
+
+      '-corner': {
+        backgroundColor: '#334',
+        borderRadius: '0 0 100% 0',
       }
     }
   },
