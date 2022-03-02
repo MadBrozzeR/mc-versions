@@ -140,7 +140,7 @@ export function Modal(parent) {
             blocks.title = mbr.dom('span', { className: 'modal__title' }),
             mbr.dom('span', {
               className: 'modal__close',
-              innerHTML: '&#10060;',
+              innerHTML: '&#215;',
               onclick: function () {ifc.modalHide()}
             })
           );

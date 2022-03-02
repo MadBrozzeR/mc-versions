@@ -19,3 +19,14 @@ export function cnSwitcher (name, value) {
   return switcher;
 }
 
+export function cnToggle(name, cn, value = false) {
+  return function () {
+    if (value) {
+      cn.del(name);
+      value = false;
+    } else {
+      cn.add(name);
+      value = true;
+    }
+  }
+}

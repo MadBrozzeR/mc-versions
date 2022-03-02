@@ -37,15 +37,25 @@ const router = {
     'diff-pane.js',
   ]),
 
+  // '/res/image.png': { GET: actions.getImage },
+
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },
   '/act/download': { GET: actions.download },
 };
 
+const ROUTE_MATCH = {
+  IMAGE: [
+    /^\/res\/image\/(.+)$/,
+    actions.getImage
+  ]
+};
+
 function process (req, res) {
   const request = new Request(req, res);
 
-  request.route(router);
+  request.match(...ROUTE_MATCH.IMAGE)
+    || request.route(router);
 }
 
 http.createServer(process).listen(PORT, '0.0.0.0', function () {

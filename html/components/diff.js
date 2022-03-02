@@ -2,6 +2,36 @@ export var style = {
   '.diff-block': {
     height: '100%',
 
+    '__text-diff': {
+      height: '100%'
+    },
+
+    '__toolbar-button': {
+      display: 'inline-block'
+    },
+
+    '__pic-diff': {
+      height: '100%',
+      paddingBottom: '40px',
+
+      '-content': {
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'row'
+      },
+
+      '-toolbar': {
+        marginBottom: '-40px',
+        height: '40px'
+      },
+
+      ' .diff-block__compare-wrapper': {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }
+    },
+
     '__compare-wrapper': {
       width: '50%',
       height: '100%',
@@ -214,76 +244,167 @@ function Hider (parent) {
   });
 }
 
+function TextDiff (params) {
+  return mbr.dom('div', { className: 'diff-block__text-diff' }, function (block) {
+    const content = params.content.split('\n');
+    const diff = parseDiff(params.diff);
+    var leftWrapper, rightWrapper, left, right;
+    let hiders = { left: null, right: null };
+    let newHider = true;
+
+    block.append(
+      leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
+          rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
+        };
+
+        wrapper.append(
+          left = mbr.dom('div', { className: 'diff-block__compare' })
+        );
+      }),
+      rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          leftWrapper.dom.scrollTop = rightWrapper.dom.scrollTop;
+          leftWrapper.dom.scrollLeft = rightWrapper.dom.scrollLeft;
+        };
+
+        wrapper.append(
+          right = mbr.dom('div', { className: 'diff-block__compare' })
+        );
+      })
+    );
+
+    let rightIndex = 1;
+
+    for (let index = 0 ; index < content.length ; ++index) {
+      let lineNumber = index + 1;
+
+      if (lineNumber in diff) {
+        newHider = true;
+        const {lines, replace} = diff[lineNumber];
+        index += lines.length - 1;
+        let difference = lines.length - replace.length;
+        lines.forEach(function (line, index) {
+          left.append(Line({ number: lineNumber + index, text: line, changed: true }));
+        });
+        replace.forEach(function (line) {
+          right.append(Line({ number: rightIndex++, text: line, changed: true }));
+        });
+        if (difference > 0) {
+          while (difference--) {
+            right.append(Line({ chaned: true }));
+          }
+        } else if (difference < 0) {
+          while (difference++) {
+            left.append(Line({ chaned: true }));
+          }
+        }
+      } else {
+        if (newHider) {
+          hiders.left = Hider(left);
+          hiders.right = Hider(right);
+          hiders.left.ifc.syncWith(hiders.right);
+          hiders.right.ifc.syncWith(hiders.left);
+          newHider = false;
+        }
+
+        hiders.left.ifc.push(Line({ number: lineNumber, text: content[index]}));
+        hiders.right.ifc.push(Line({ number: rightIndex++, text: content[index]}));
+      }
+    }
+  });
+}
+
+function PicDiff (params) {
+  return mbr.dom('div', { className: 'diff-block__pic-diff' }, function (block) {
+    let ifc = {};
+    const pictures = [
+        params.src[0] ? mbr.dom('img', { src: params.src[0] }) : null,
+        params.src[1] ? mbr.dom('img', { src: params.src[1] }) : null
+    ];
+
+    block.append(
+      mbr.dom('div', { className: 'diff-block__pic-diff-content' }, function (content) {
+        ifc.sideBySide = function () {
+          content.clear();
+          let leftWrapper, rightWrapper;
+
+          content.append(
+            leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+              wrapper.dom.onscroll = function () {
+                rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
+                rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
+              };
+
+              pictures[0] && wrapper.append(pictures[0]);
+            }),
+            rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+              wrapper.dom.onscroll = function () {
+                rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
+                rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
+              };
+
+              pictures[1] && wrapper.append(pictures[1]);
+            })
+          );
+        }
+      }),
+      mbr.dom('div', { className: 'diff-block__pic-diff-toolbar' }, function (toolbar) {
+        function rescale (multiplier) {
+          pictures[0] && (pictures[0].dom.width = pictures[0].dom.naturalWidth * multiplier);
+          pictures[1] && (pictures[1].dom.width = pictures[1].dom.naturalWidth * multiplier);
+        }
+
+        toolbar.append(
+          mbr.dom('div', {
+            className: 'diff-block__toolbar-button',
+            innerText: '1x',
+            onclick: function () {
+              rescale(1);
+            }
+          }),
+          mbr.dom('div', {
+            className: 'diff-block__toolbar-button',
+            innerText: '2x',
+            onclick: function () {
+              rescale(2);
+            }
+          }),
+          mbr.dom('div', {
+            className: 'diff-block__toolbar-button',
+            innerText: '4x',
+            onclick: function () {
+              rescale(4);
+            }
+          }),
+          mbr.dom('div', {
+            className: 'diff-block__toolbar-button',
+            innerText: '8x',
+            onclick: function () {
+              rescale(8);
+            }
+          })
+        );
+      })
+    );
+
+    ifc.sideBySide();
+  });
+
+}
+
 export function Diff () {
   return mbr.dom('div', { className: 'diff-block' }, function (diffBlock) {
     diffBlock.ifc = {
       set: function (params) {
-        const content = params.content.split('\n');
-        const diff = parseDiff(params.diff);
-        var leftWrapper, rightWrapper, left, right;
-        let hiders = { left: null, right: null };
-        let newHider = true;
-
-        diffBlock.clear().append(
-          leftWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
-            wrapper.dom.onscroll = function () {
-              rightWrapper.dom.scrollTop = leftWrapper.dom.scrollTop;
-              rightWrapper.dom.scrollLeft = leftWrapper.dom.scrollLeft;
-            };
-
-            wrapper.append(
-              left = mbr.dom('div', { className: 'diff-block__compare' })
-            );
-          }),
-          rightWrapper = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
-            wrapper.dom.onscroll = function () {
-              leftWrapper.dom.scrollTop = rightWrapper.dom.scrollTop;
-              leftWrapper.dom.scrollLeft = rightWrapper.dom.scrollLeft;
-            };
-
-            wrapper.append(
-              right = mbr.dom('div', { className: 'diff-block__compare' })
-            );
-          })
-        );
-
-        let rightIndex = 1;
-
-        for (let index = 0 ; index < content.length ; ++index) {
-          let lineNumber = index + 1;
-
-          if (lineNumber in diff) {
-            newHider = true;
-            const {lines, replace} = diff[lineNumber];
-            index += lines.length - 1;
-            let difference = lines.length - replace.length;
-            lines.forEach(function (line, index) {
-              left.append(Line({ number: lineNumber + index, text: line, changed: true }));
-            });
-            replace.forEach(function (line) {
-              right.append(Line({ number: rightIndex++, text: line, changed: true }));
-            });
-            if (difference > 0) {
-              while (difference--) {
-                right.append(Line({ chaned: true }));
-              }
-            } else if (difference < 0) {
-              while (difference++) {
-                left.append(Line({ chaned: true }));
-              }
-            }
-          } else {
-            if (newHider) {
-              hiders.left = Hider(left);
-              hiders.right = Hider(right);
-              hiders.left.ifc.syncWith(hiders.right);
-              hiders.right.ifc.syncWith(hiders.left);
-              newHider = false;
-            }
-
-            hiders.left.ifc.push(Line({ number: lineNumber, text: content[index]}));
-            hiders.right.ifc.push(Line({ number: rightIndex++, text: content[index]}));
-          }
+        switch (params.type) {
+          case 'text':
+            diffBlock.clear().append(TextDiff(params));
+            break;
+          case 'picture':
+            diffBlock.clear().append(PicDiff(params));
+            break;
         }
       }
     }

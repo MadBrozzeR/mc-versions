@@ -1,4 +1,4 @@
-import { cnSwitcher } from "../utils.js";
+import { cnSwitcher, cnToggle } from "../utils.js";
 
 export const style = {
   '.diff-list': {
@@ -38,8 +38,14 @@ export const style = {
       display: 'none',
       paddingLeft: '24px'
     },
+    '__changes-number': {
+      color: '#999',
+      marginLeft: '8px'
+    },
     '__file': {
       cursor: 'pointer',
+      paddingLeft: '10px',
+      color: '#eee',
 
       ':hover': {
         color: '#bbf'
@@ -48,6 +54,10 @@ export const style = {
       '.active': {
         color: '#99d'
       }
+    },
+    '__directory': {
+      paddingLeft: '10px',
+      color: '#999'
     },
 
     '.active': {
@@ -61,6 +71,98 @@ export const style = {
   },
 };
 
+function Directory (name, parent) {
+  return mbr.dom('div', {
+    innerText: name,
+    className: 'diff-group__directory'
+  }).appendTo(parent);
+}
+
+function File ({ name, file, parent, onClick }) {
+  return mbr.dom('div', null, function (block) {
+    parent && block.appendTo(parent);
+    const fileCN = block.cn('diff-group__file');
+
+    block.append(
+      mbr.dom('span', { innerText: name })
+    );
+    if (file.changed.length) {
+      block.append(
+        mbr.dom('span', {
+          className: 'diff-group__changes-number',
+          innerText: '[' + file.changed.join('/') + ']'
+        })
+      )
+    }
+    block.dom.onclick = function () {
+      onClick(file, fileCN);
+    }
+  });
+}
+
+function Group({ name, parent, onSelect }) {
+  return mbr.dom('div', null, function (group) {
+    var groupCN = group.cn('diff-group');
+    var counter = {
+      block: null,
+      value: 0,
+      add: function () {
+        this.block.dom.innerText = ++this.value;
+      }
+    };
+
+    group.append(
+      mbr.dom('div', { className: 'diff-group__head' }, function (head) {
+        head.append(
+          mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
+          mbr.dom('span', { className: 'diff-group__title', innerText: name }),
+          counter.block = mbr.dom('span', { className: 'diff-group__counter', innerText: counter.value })
+        );
+
+        head.dom.onclick = cnToggle('active', groupCN);
+      }),
+      mbr.dom('div', { className: 'diff-group__list' }, function (list) {
+        const tree = {
+          element: list,
+          children: {}
+        };
+
+        group.ifc = {
+          push: function (file) {
+            if (!counter.value) {
+              group.appendTo(parent);
+            }
+
+            counter.add();
+            const path = file.name.split('/');
+            const lastIndex = path.length - 1;
+            let current = tree;
+
+            for (let index = 0 ; index < path.length ; ++index) {
+              if (index === lastIndex) {
+                current.children[path[index]] = File({
+                  name: path[index],
+                  file: file,
+                  parent: current.element,
+                  onClick: onSelect
+                });
+              } else {
+                if (!(path[index] in current.children)) {
+                  current.children[path[index]] = {
+                    element: Directory(path[index], current.element),
+                    children: {}
+                  };
+                }
+                current = current.children[path[index]];
+              }
+            }
+          }
+        }
+      })
+    );
+  });
+}
+
 const groupCheck = {
   set: {
     Class: /^.+\.class$/,
@@ -70,6 +172,8 @@ const groupCheck = {
     Assets: /^assets\/.+$/,
     'Client Data': /^client\/.+$/,
     'Server Data': /^server\/.+$/,
+
+    'Other': /^.+$/
   },
   check: function (file) {
     for (var key in this.set) {
@@ -77,16 +181,13 @@ const groupCheck = {
         return key;
       }
     }
-
-    return 'Other';
   },
-  getGroups: function () {
+  getGroups: function (parent, onSelect) {
     var result = {};
 
     for (var name in this.set) {
-      result[name] = [];
+      result[name] = Group({ name, parent, onSelect });
     }
-    result.Other = [];
 
     return result;
   }
@@ -98,64 +199,16 @@ export function DiffList({ onSelect }) {
       set: function (files) {
         difflist.clear();
         var selectedFile = cnSwitcher('active');
-        var groups = groupCheck.getGroups();
+        var groups = groupCheck.getGroups(difflist, function (file, fileCN) {
+          selectedFile(fileCN);
+          onSelect(file);
+        });
 
         files.forEach(function (file) {
           const group = groupCheck.check(file);
 
-          groups[group].push(file);
+          groups[group].ifc.push(file);
         });
-
-        for (var groupName in groups) {
-          if (groups[groupName].length === 0) {
-            continue;
-          }
-
-          mbr.dom('div', null, function (diffGroup) {
-            diffGroup.appendTo(difflist);
-            var groupCN = diffGroup.cn('diff-group');
-            var isOpen = false;
-
-            diffGroup.append(
-              mbr.dom('div', { className: 'diff-group__head' }, function (head) {
-                head.append(
-                  mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
-                  mbr.dom('span', { className: 'diff-group__title', innerText: groupName }),
-                  mbr.dom('span', { className: 'diff-group__counter', innerText: groups[groupName].length })
-                );
-
-                head.dom.onclick = function () {
-                  if (isOpen) {
-                    groupCN.del('active');
-                  } else {
-                    groupCN.add('active');
-                  }
-
-                  isOpen = !isOpen;
-                }
-              }),
-              mbr.dom('div', { className: 'diff-group__list' }, function (list) {
-                groups[groupName].forEach(function (file) {
-                  list.append(
-                    mbr.dom('div', {
-                      innerText: file.name + (
-                        file.changed.length
-                          ? (' [' + file.changed.join('/') + ']')
-                          : ''
-                        ),
-                    }, function (fileBlock) {
-                      var fileCN = fileBlock.cn( 'diff-group__file');
-                      fileBlock.dom.onclick = function () {
-                        selectedFile(fileCN);
-                        onSelect(file);
-                      }
-                    })
-                  );
-                });
-              })
-            );
-          });
-        }
       }
     }
   })

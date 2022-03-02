@@ -12,20 +12,22 @@ Git.prototype.raw = function () {
 
   return new Promise(function (resolve, reject) {
     const result = {
-      data: '',
+      data: [],
+      length: 0,
       error: ''
     };
     const process = spawn(bin, args);
 
     process.stdout.on('data', function (data) {
-      result.data += data;
+      result.data.push(data);
+      result.length += data.length;
     });
     process.stderr.on('data', function (data) {
       result.error += data;
     });
     process.on('close', function (code) {
       if (code === 0) {
-        resolve(result.data);
+        resolve(Buffer.concat(result.data, result.length));
       } else {
         reject(result.error);
       }
@@ -47,6 +49,10 @@ function parseByMatch (re, prepare) {
   }
 }
 
+function toString(buffer) {
+  return buffer.toString();
+}
+
 Git.prototype.co = function (name) {
   return this.raw('checkout', name).then(() => true)
 }
@@ -56,11 +62,11 @@ Git.prototype.newBranch = function (name) {
 }
 
 Git.prototype.ci = function (message) {
-  return this.raw('commit', '-a', '-m', message);
+  return this.raw('commit', '-a', '-m', message).then(toString);
 }
 
 Git.prototype.add = function (path = '.') {
-  return this.raw('add', ...path);
+  return this.raw('add', ...path).then(toString);
 }
 
 Git.prototype.branch = function () {
@@ -93,6 +99,29 @@ Git.prototype.diffName = function (params) {
   ));
 }
 
+Git.prototype.diffRaw = function (params) {
+  const attrs = ['--raw', '--abbrev=40', '-z'];
+
+  if (params.refs) {
+    attrs.push(...params.refs);
+  }
+
+  if (params.path instanceof Array) {
+    attrs.push('--', ...params.path);
+  } else if (typeof params.path === 'string') {
+    attrs.push('--', params.path);
+  }
+
+  return this.raw('diff', ...attrs).then(parseByMatch(
+    /:(\d+) (\d+) ([\da-f]+) ([\da-f]+) (\w\d*)\000(?:(.+?)\000)?(.+?)\000/g,
+    (match) => ({
+      left: { mode: match[1], blob: match[3], name: match[6] || match[7] },
+      right: { mode: match[2], blob: match[4], name: match[7] },
+      type: match[5]
+    })
+  ));
+};
+
 Git.prototype.diff = function (params) {
   const attrs = ['-U0'];
 
@@ -106,18 +135,13 @@ Git.prototype.diff = function (params) {
     attrs.push('--', params.path);
   }
 
-  return this.raw('diff', ...attrs)
-    // .then(parseByMatch(
-    //   /@@ ([\d\-,+ ]*) @@\n((?:[+\- ].+\n)+)/gm,
-    //   (match) => ({
-    //     index: match[1],
-    //     lines: match[2]
-    //   })
-    // ))
+  return this.raw('diff', ...attrs).then(toString);
 }
 
 Git.prototype.show = function (params) {
-  return this.raw('show', params.ref + ':' + params.file);
+  const promise = this.raw('show', params.ref + ':' + params.file);
+
+  return params.convertToString ? promise.then(toString) : promise;
 }
 
 module.exports = { Git };

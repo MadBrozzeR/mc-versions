@@ -42,6 +42,9 @@ export var style = {
     margin: 0,
     height: '100%'
   },
+  'img': {
+    imageRendering: 'pixelated'
+  },
   '.mainblock': {
     height: '100%',
     padding: '60px 5px 5px'
