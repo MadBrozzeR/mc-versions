@@ -1,3 +1,4 @@
+const MCRes = require('mc-resource')
 const { LoadQueue } = require('mbr-queue');
 const nbt = require('nbt-reader');
 const PATH = require('../path.js')
@@ -5,6 +6,7 @@ const { Git } = require('../git.js');
 const { UnZIP, writeFile, toJSON, clearDir } = require('../utils.js');
 
 const git = new Git({ repo: PATH.ROOT });
+
 function noop () {}
 
 function clear() {
@@ -40,8 +42,8 @@ function downloadAssets(version, options = {}) {
           const queue = this;
 
           version.getAsset(name).then(function (asset) {
-            if (options.verbose) {
-              console.log('Downloading ' + name);
+            if (options.logger) {
+              options.logger('Downloading ' + name);
             }
 
             asset.get().then(function (data) {
@@ -61,38 +63,40 @@ function downloadAssets(version, options = {}) {
   });
 }
 
-async function unpackVersion (version) {
+async function unpackVersion (version, logger = console.log) {
   const info = await version.get();
   await git.co('master');
   await clear();
 
-  console.log('Saving ' + PATH.VERSION)
+  logger('Saving ' + PATH.VERSION)
   await writeFile(PATH.VERSION, toJSON(info));
 
-  console.log('Saving ' + PATH.ASSET_INDEX)
+  logger('Saving ' + PATH.ASSET_INDEX)
   const assetIndex = await version.getAssets();
   await writeFile(PATH.ASSET_INDEX, toJSON(assetIndex))
 
-  console.log('Downoloading client')
+  logger('Downoloading client')
   const client = await version.getClient();
-  console.log('Unpacking client')
+  logger('Unpacking client')
   client && await UnZIP(client, PATH.CLIENT, prepareUnzipData);
 
-  console.log('Downoloading server')
+  logger('Downoloading server')
   const server = await version.getServer();
-  console.log('Unpacking server')
+  logger('Unpacking server')
   server && await UnZIP(server, PATH.SERVER);
 
-  console.log('Downloading assets')
-  await downloadAssets(version, { verbose: true });
+  logger('Downloading assets')
+  await downloadAssets(version, { logger });
 
   await git.newBranch(info.id);
-  console.log('Branch ' + info.id + ' created');
+  logger('Branch ' + info.id + ' created');
   await git.add();
   await git.ci(info.id);
-  console.log('Commit created');
+  logger('Commit created');
 
   return info;
 }
 
 module.exports = { unpackVersion };
+
+module.exports.versions = new MCRes.Versions();

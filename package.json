@@ -10,6 +10,7 @@
   "author": "MadBrozzeR",
   "license": "ISC",
   "dependencies": {
+    "madsocket": "^1.0.3",
     "mbr-dom": "0.2.0",
     "mbr-queue": "2.1.0",
     "mbr-serv": "0.1.0",

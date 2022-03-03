@@ -6,6 +6,7 @@ import { style as waiterStyle } from '../components/waiter.js';
 import { style as modalStyle } from '../components/modal.js';
 import { style as diffListStyle } from '../components/diff-list.js';
 import { style as diffPaneStyle } from '../components/diff-pane.js';
+import { style as logStyle } from '../components/log.js';
 
 export var style = {
   ...keyframes,
@@ -68,4 +69,5 @@ export var style = {
   ...diffStyle,
   ...diffListStyle,
   ...diffPaneStyle,
+  ...logStyle,
 };

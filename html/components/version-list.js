@@ -1,5 +1,7 @@
 import { get, fetcher } from '../fetchers.js';
-import { selectedVersions } from '../store.js';
+import {setup} from '../messenger.js';
+import { Log } from './log.js';
+import { ifc, selectedVersions } from '../store.js';
 
 export const style = {
   '.version': {
@@ -47,6 +49,30 @@ export const style = {
   }
 };
 
+function setupDownload (version, fromFile, onFinish) {
+  let log;
+
+  ifc.modalShow({ title: 'Downloading: ' + version }, log = Log());
+
+  setup({
+    command: 'd',
+    id: version,
+    message: version + (fromFile ? ('\t' + 'file') : ''),
+    callback: function (command, message) {
+      switch (command) {
+        case 'log':
+        case 'error':
+          log.ifc.push(message);
+          break;
+        case 'finish':
+          log.ifc.push('DONE');
+          onFinish();
+          break;
+      }
+    }
+  });
+}
+
 export function VersionList() {
   return mbr.dom('div', { className: 'version-list' }, function (content) {
     fetcher(
@@ -84,10 +110,11 @@ export function VersionList() {
                   getButton.on({
                     click: function () {
                       if (isDownloadable) {
-                        fetcher(
-                          get.download(version.id, version.fromFile),
+                        setupDownload(
+                          version.id,
+                          version.fromFile,
                           () => { isDownloadable = false; setView() }
-                        );
+                        )
                       }
                     }
                   })

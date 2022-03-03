@@ -1,9 +1,40 @@
 const http = require('http');
 const { Request } = require('mbr-serv');
+const MadSocket = require('madsocket');
 const PATH = require('../path.js');
 const actions = require('./actions.js');
+const {versions, unpackVersion} = require('./unpacker.js');
 
 const PORT = 9210;
+
+const WS_RE = {
+  DOWNLOAD: /^d\[(.+?)\]:(.+?)(\tfile)?$/
+}
+
+const ws = new MadSocket({
+  message: function (message) {
+    const regMatch = WS_RE.DOWNLOAD.exec(message);
+    const client = this;
+
+    if (regMatch) {
+      const [, id, version, fromFile] = regMatch;
+      client.send('start[' + id + ']');
+      const promise = fromFile
+        ? versions.getFromFile(PATH.EXPERIMENTAL + version + '.json')
+        : versions.get(version);
+
+        promise.then(result => unpackVersion(result, function (log) {
+          client.send('log[' + id + ']:' + log);
+        })).then(function () {
+          client.send('finish[' + id + ']')
+        }).catch(function (error) {
+          console.log(error);
+          client.send('error[' + id + ']:' + error.message);
+          client.send('finish[' + id + ']');
+        });
+    }
+  }
+});
 
 function componentsRouter (components) {
   const result = {};
@@ -13,6 +44,10 @@ function componentsRouter (components) {
   }
 
   return result;
+}
+
+function leeching (request) {
+  ws.leach(request.request, request.response);
 }
 
 const router = {
@@ -26,6 +61,7 @@ const router = {
   '/fetchers.js': PATH.HTML + 'fetchers.js',
   '/store.js': PATH.HTML + 'store.js',
   '/utils.js': PATH.HTML + 'utils.js',
+  '/messenger.js': PATH.HTML + 'messenger.js',
 
   ...componentsRouter([
     'diff.js',
@@ -35,9 +71,10 @@ const router = {
     'modal.js',
     'diff-list.js',
     'diff-pane.js',
+    'log.js',
   ]),
 
-  // '/res/image.png': { GET: actions.getImage },
+  '/ws': leeching,
 
   '/act/versions': { GET: actions.versions },
   '/act/diff': { GET: actions.diff },
@@ -60,4 +97,4 @@ function process (req, res) {
 
 http.createServer(process).listen(PORT, '0.0.0.0', function () {
   console.log('Server is running on port ' + PORT);
-})
+});
