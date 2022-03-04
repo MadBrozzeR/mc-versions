@@ -122,8 +122,8 @@ export var style = {
 }
 
 const RE = {
-  DIFF: /@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?:.*)\n((?:[+\- ].+[\n\r]+)+)/g,
-  LINE: /([-+])(.+)\n/g
+  DIFF: /@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?:.*)\n((?:[+\- ].+\r?\n+)+)/g,
+  LINE: /([-+])(.+)\r?\n/g
 }
 
 const HIDER = {
@@ -137,6 +137,8 @@ function parseDiff (raw) {
 
   while (regMatch = RE.DIFF.exec(raw)) {
     let leftIndex = parseInt(regMatch[1], 10);
+    const lines = [];
+    const replace = [];
     result[leftIndex] = {
       lines: [],
       replace: []
@@ -144,11 +146,17 @@ function parseDiff (raw) {
 
     while (lineRegMatch = RE.LINE.exec(regMatch[5])) {
       if (lineRegMatch[1] === '-') {
-        result[leftIndex].lines.push(lineRegMatch[2]);
+        lines.push(lineRegMatch[2]);
       } else if (lineRegMatch[1] === '+'){
-        result[leftIndex].replace.push(lineRegMatch[2]);
+        replace.push(lineRegMatch[2]);
       }
     }
+
+    if (lines.length === 0) {
+      leftIndex++;
+    }
+
+    result[leftIndex] = { lines, replace };
   }
 
   return result;
@@ -248,7 +256,7 @@ function TextDiff (params) {
   return mbr.dom('div', { className: 'diff-block__text-diff' }, function (block) {
     const content = params.content.split('\n');
     const diff = parseDiff(params.diff);
-    var leftWrapper, rightWrapper, left, right;
+    let leftWrapper, rightWrapper, left, right;
     let hiders = { left: null, right: null };
     let newHider = true;
 
@@ -283,6 +291,7 @@ function TextDiff (params) {
       if (lineNumber in diff) {
         newHider = true;
         const {lines, replace} = diff[lineNumber];
+        delete diff[lineNumber];
         index += lines.length - 1;
         let difference = lines.length - replace.length;
         lines.forEach(function (line, index) {
