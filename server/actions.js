@@ -63,7 +63,7 @@ const extToType = {
 
 module.exports.versions = function (request) {
   Promise.all([
-    versions.get(),
+    versions.getList(),
     git.branch().catch(() => []),
     getExperimental()
   ]).then(function ([versions, downloaded, experimental]) {

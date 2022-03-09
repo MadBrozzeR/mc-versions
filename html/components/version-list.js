@@ -61,8 +61,10 @@ function setupDownload (version, fromFile, onFinish) {
     callback: function (command, message) {
       switch (command) {
         case 'log':
-        case 'error':
           log.ifc.push(message);
+          break;
+        case 'error':
+          log.ifc.push(message, 'ERROR');
           break;
         case 'finish':
           log.ifc.push('DONE');

@@ -115,8 +115,8 @@ function clearDir (directory, options = {}) {
       if (error) {
         reject(error);
       } else {
-        if (options.verbose) {
-          console.log('Clearing ' + directory);
+        if (options.logger) {
+          options.logger('Clearing ' + directory);
         }
 
         count = files.length;

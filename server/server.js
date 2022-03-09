@@ -23,8 +23,12 @@ const ws = new MadSocket({
         ? versions.getFromFile(PATH.EXPERIMENTAL + version + '.json')
         : versions.get(version);
 
-        promise.then(result => unpackVersion(result, function (log) {
-          client.send('log[' + id + ']:' + log);
+        promise.then(result => unpackVersion(result, function (log, level) {
+          if (level === 'ERROR') {
+            client.send('error[' + id + ']:' + log);
+          } else {
+            client.send('log[' + id + ']:' + log);
+          }
         })).then(function () {
           client.send('finish[' + id + ']')
         }).catch(function (error) {

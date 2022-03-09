@@ -14,6 +14,7 @@ export const style = {
     ].join(','),
     transform: 'translateY(-200px)',
     overflow: 'hidden',
+    maxHeight: '90%',
 
     '__curtain': {
       opacity: 0,
@@ -26,6 +27,7 @@ export const style = {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      zIndex: 10,
       transition: [
         '.3s opacity ease-in-out',
         '.3s bottom step-end'

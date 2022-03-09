@@ -9,11 +9,11 @@ const git = new Git({ repo: PATH.ROOT });
 
 function noop () {}
 
-function clear() {
-  return clearDir(PATH.CLIENT, { verbose: true })
-    .catch(noop).then(() => clearDir(PATH.ASSETS, { verbose: true }))
-    .catch(noop).then(() => clearDir(PATH.SERVER, { verbose: true }))
-    .catch(noop).then(() => clearDir(PATH.JSON, { verbose: true }))
+function clear(logger) {
+  return clearDir(PATH.CLIENT, { logger })
+    .catch(noop).then(() => clearDir(PATH.ASSETS, { logger }))
+    .catch(noop).then(() => clearDir(PATH.SERVER, { logger }))
+    .catch(noop).then(() => clearDir(PATH.JSON, { logger }))
     .catch(noop).then(noop);
 }
 
@@ -46,10 +46,13 @@ function downloadAssets(version, options = {}) {
               options.logger('Downloading ' + name);
             }
 
-            asset.get().then(function (data) {
-              writeFile(PATH.ASSETS + name, data).then(queue.done.bind(queue));
+            return asset.get().then(function (data) {
+              return writeFile(PATH.ASSETS + name, data).then(queue.done.bind(queue));
             })
-          })
+          }).catch(function (error) {
+            options.logger('Failed to download "' + name + '": ' + error.message, 'ERROR');
+            queue.done();
+          });
         },
         end: function () {
           resolve();
@@ -66,7 +69,7 @@ function downloadAssets(version, options = {}) {
 async function unpackVersion (version, logger = console.log) {
   const info = await version.get();
   await git.co('master');
-  await clear();
+  await clear(logger);
 
   logger('Saving ' + PATH.VERSION)
   await writeFile(PATH.VERSION, toJSON(info));
