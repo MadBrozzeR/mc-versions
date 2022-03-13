@@ -1,3 +1,4 @@
+import { Play } from "./player.js";
 export var style = {
   '.diff-block': {
     height: '100%',
@@ -14,6 +15,11 @@ export var style = {
       ':hover': {
         color: '#aaf'
       }
+    },
+
+    '__sound-line': {
+      height: '28px',
+      padding: '4px 0'
     },
 
     '__pic-diff': {
@@ -259,6 +265,29 @@ function Hider (parent) {
   });
 }
 
+function Compare(params, callback) {
+  let left, right;
+
+  return mbr.dom('div', params, function (block) {
+    block.append(
+      left = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          right.dom.scrollTop = wrapper.dom.scrollTop;
+          right.dom.scrollLeft = wrapper.dom.scrollLeft;
+        };
+      }),
+      right = mbr.dom('div', { className: 'diff-block__compare-wrapper' }, function (wrapper) {
+        wrapper.dom.onscroll = function () {
+          left.dom.scrollTop = wrapper.dom.scrollTop;
+          left.dom.scrollLeft = wrapper.dom.scrollLeft;
+        };
+      })
+    );
+
+    callback.call(block, left, right);
+  });
+}
+
 function TextDiff (params) {
   return mbr.dom('div', { className: 'diff-block__text-diff' }, function (block) {
     const content = params.content.split('\n');
@@ -407,7 +436,28 @@ function PicDiff (params) {
 
     ifc.sideBySide();
   });
+}
 
+function SoundLine (params, ref) {
+  return mbr.dom('div', { className: 'diff-block__sound-line' }, function (line) {
+    if (params.mode === '000000') {
+      line.dom.innerText = 'null';
+    } else {
+      line.append(
+        Play('/res/sound/' + params.name + '?r=' + encodeURIComponent(ref)),
+        mbr.dom('span', { innerText: params.name })
+      );
+    }
+  });
+}
+
+function SoundDiff (params) {
+  return Compare({ className: 'diff-block__sound-diff' }, function (left, right) {
+    params.changes.forEach(function (change) {
+      left.append(SoundLine(change.left, params.refs[0]));
+      right.append(SoundLine(change.right, params.refs[1]));
+    })
+  })
 }
 
 export function Diff () {
@@ -420,6 +470,9 @@ export function Diff () {
             break;
           case 'picture':
             diffBlock.clear().append(PicDiff(params));
+            break;
+          case 'sound':
+            diffBlock.clear().append(SoundDiff(params));
             break;
         }
       }

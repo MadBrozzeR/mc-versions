@@ -113,7 +113,7 @@ Git.prototype.diffRaw = function (params) {
   }
 
   return this.raw('diff', ...attrs).then(parseByMatch(
-    /:(\d+) (\d+) ([\da-f]+) ([\da-f]+) (\w\d*)\000(?:(.+?)\000)?(.+?)\000/g,
+    /:(\d+) (\d+) ([\da-f]+) ([\da-f]+) (\w\d*)\000(?:([^:]+?)\000)?([^:]+?)\000/g,
     (match) => ({
       left: { mode: match[1], blob: match[3], name: match[6] || match[7] },
       right: { mode: match[2], blob: match[4], name: match[7] },

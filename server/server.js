@@ -76,6 +76,7 @@ const router = {
     'diff-list.js',
     'diff-pane.js',
     'log.js',
+    'player.js'
   ]),
 
   '/ws': leeching,
@@ -89,6 +90,10 @@ const ROUTE_MATCH = {
   IMAGE: [
     /^\/res\/image\/(.+)$/,
     actions.getImage
+  ],
+  SOUND: [
+    /^\/res\/sound\/(.+)$/,
+    actions.getSound
   ]
 };
 
@@ -96,6 +101,7 @@ function process (req, res) {
   const request = new Request(req, res);
 
   request.match(...ROUTE_MATCH.IMAGE)
+    || request.match(...ROUTE_MATCH.SOUND)
     || request.route(router);
 }
 

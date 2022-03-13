@@ -169,6 +169,8 @@ const groupCheck = {
     Meta: /^(?:client|server)\/META-INF\/.+$/,
     'Version Info': /^(?:client|server|json)\/(version|assets).json$/,
     Structures: /^client\/data\/minecraft\/structures\/.+\.nbt$/,
+    Localization: /^assets\/.+\/lang\/.+\.json$/,
+    Sounds: /^assets\/.+\.(ogg|mus)$/,
     Assets: /^assets\/.+$/,
     'Client Data': /^client\/.+$/,
     'Server Data': /^server\/.+$/,

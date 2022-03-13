@@ -7,6 +7,7 @@ import { style as modalStyle } from '../components/modal.js';
 import { style as diffListStyle } from '../components/diff-list.js';
 import { style as diffPaneStyle } from '../components/diff-pane.js';
 import { style as logStyle } from '../components/log.js';
+import { style as playerStyle } from '../components/player.js';
 
 export var style = {
   ...keyframes,
@@ -70,4 +71,5 @@ export var style = {
   ...diffListStyle,
   ...diffPaneStyle,
   ...logStyle,
+  ...playerStyle,
 };

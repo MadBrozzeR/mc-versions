@@ -13,6 +13,14 @@ function getImage ({name, mode}, ref) {
     + '?r=' + encodeURIComponent(ref);
 }
 
+/*
+function getSound ({name, mode}, ref) {
+  return mode === '000000' ? null : '/res/sound/'
+    + name
+    + '?r=' + encodeURIComponent(ref);
+}
+*/
+
 function getExtension (name) {
   const dotIndex = name.lastIndexOf('.');
 
@@ -52,12 +60,27 @@ const DIFF_VARIANTS = {
         diff
       };
     });
+  },
+  SOUND: function (params) {
+    return git.diffRaw({
+      refs: [params.s, params.f],
+      path: ['*.ogg', '*.mus']
+    }).then(function (changes) {
+      return {
+        type: 'sound',
+        changes,
+        refs: [params.s, params.f],
+        current: params.n
+      };
+    });
   }
 }
 
 const extToType = {
   'png': DIFF_VARIANTS.IMAGE,
   'gif': DIFF_VARIANTS.IMAGE,
+  'ogg': DIFF_VARIANTS.SOUND,
+  'mus': DIFF_VARIANTS.SOUND,
   default: DIFF_VARIANTS.TEXT
 }
 
@@ -112,6 +135,17 @@ module.exports.download = function (request) {
 }
 
 module.exports.getImage = function (regMatch) {
+  const request = this;
+  const fileName = regMatch[1];
+  const { r: revision } = request.getParams();
+  const ext = getExtension(fileName);
+
+  git.show({ ref: revision, file: fileName }).then(function (data) {
+    request.send(data, ext);
+  }).catch(function (error) {console.error(error)});
+}
+
+module.exports.getSound = function (regMatch) {
   const request = this;
   const fileName = regMatch[1];
   const { r: revision } = request.getParams();
