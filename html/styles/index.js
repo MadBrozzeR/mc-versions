@@ -1,4 +1,5 @@
 import { keyframes } from './animation.js';
+import { scrollbars } from './scrollbars.js';
 import { style as diffStyle } from '../components/diff.js';
 import { style as toolbarStyle } from '../components/toolbar.js';
 import { style as versionListStyle } from '../components/version-list.js';
@@ -8,6 +9,7 @@ import { style as diffListStyle } from '../components/diff-list.js';
 import { style as diffPaneStyle } from '../components/diff-pane.js';
 import { style as logStyle } from '../components/log.js';
 import { style as playerStyle } from '../components/player.js';
+import { style as diffTypesStyle } from '../components/diff/index.js';
 
 export var style = {
   ...keyframes,
@@ -15,25 +17,7 @@ export var style = {
   '*': {
     boxSizing: 'border-box',
 
-    '::-webkit-scrollbar': {
-      width: '6px',
-      height: '6px',
-
-      '-track': {
-        backgroundColor: '#011',
-        borderRadius: '3px'
-      },
-
-      '-thumb': {
-        backgroundColor: '#555',
-        borderRadius: '3px'
-      },
-
-      '-corner': {
-        backgroundColor: '#334',
-        borderRadius: '0 0 100% 0',
-      }
-    }
+    ...scrollbars
   },
   'html': {
     height: '100%'
@@ -72,4 +56,5 @@ export var style = {
   ...diffPaneStyle,
   ...logStyle,
   ...playerStyle,
+  ...diffTypesStyle,
 };

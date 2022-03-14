@@ -61,6 +61,7 @@ const router = {
   '/favicon.ico': PATH.HTML + 'mbr-mc.ico',
   '/styles/index.js': PATH.HTML + 'styles/index.js',
   '/styles/animation.js': PATH.HTML + 'styles/animation.js',
+  '/styles/scrollbars.js': PATH.HTML + 'styles/scrollbars.js',
   '/main.js': PATH.HTML + 'main.js',
   '/fetchers.js': PATH.HTML + 'fetchers.js',
   '/store.js': PATH.HTML + 'store.js',
@@ -76,7 +77,12 @@ const router = {
     'diff-list.js',
     'diff-pane.js',
     'log.js',
-    'player.js'
+    'player.js',
+    'diff/compare.js',
+    'diff/text-diff.js',
+    'diff/sound-diff.js',
+    'diff/pic-diff.js',
+    'diff/index.js',
   ]),
 
   '/ws': leeching,
