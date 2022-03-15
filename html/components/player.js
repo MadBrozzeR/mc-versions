@@ -1,5 +1,6 @@
 export const style = {
   '.player-button': {
+    cursor: 'pointer',
     marginRight: '8px',
     verticalAlign: 'middle',
     width: '20px',
@@ -9,8 +10,13 @@ export const style = {
     borderColor: 'transparent white',
     transition: [
       '.2s border-width ease-in-out',
-      '.2s border-radius ease-in-out'
+      '.2s border-radius ease-in-out',
+      '.2s border-color ease-in-out'
     ].join(','),
+
+    ':hover': {
+      borderColor: 'transparent #bbf'
+    },
 
     '_IDLE': {
       borderWidth: '10px 0 10px 20px',

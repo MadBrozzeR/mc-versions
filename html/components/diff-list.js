@@ -1,4 +1,5 @@
 import { cnSwitcher, cnToggle } from "../utils.js";
+import { Tree } from "./tree.js";
 
 export const style = {
   '.diff-list': {
@@ -7,6 +8,10 @@ export const style = {
     overflowY: 'auto'
   },
   '.diff-group': {
+    '.hidden': {
+      display: 'none'
+    },
+
     '__head': {
       padding: '4px',
       fontSize: '24px',
@@ -14,7 +19,7 @@ export const style = {
 
       ':hover': {
         color: '#bbf'
-      }
+      },
     },
     '__title': {
       display: 'inline-block',
@@ -44,8 +49,6 @@ export const style = {
     },
     '__file': {
       cursor: 'pointer',
-      paddingLeft: '10px',
-      color: '#eee',
 
       ':hover': {
         color: '#bbf'
@@ -54,10 +57,6 @@ export const style = {
       '.active': {
         color: '#99d'
       }
-    },
-    '__directory': {
-      paddingLeft: '10px',
-      color: '#999'
     },
 
     '.active': {
@@ -71,38 +70,9 @@ export const style = {
   },
 };
 
-function Directory (name, parent) {
-  return mbr.dom('div', {
-    innerText: name,
-    className: 'diff-group__directory'
-  }).appendTo(parent);
-}
-
-function File ({ name, file, parent, onClick }) {
-  return mbr.dom('div', null, function (block) {
-    parent && block.appendTo(parent);
-    const fileCN = block.cn('diff-group__file');
-
-    block.append(
-      mbr.dom('span', { innerText: name })
-    );
-    if (file.changed.length) {
-      block.append(
-        mbr.dom('span', {
-          className: 'diff-group__changes-number',
-          innerText: '[' + file.changed.join('/') + ']'
-        })
-      )
-    }
-    block.dom.onclick = function () {
-      onClick(file, fileCN);
-    }
-  });
-}
-
 function Group({ name, parent, onSelect }) {
   return mbr.dom('div', null, function (group) {
-    var groupCN = group.cn('diff-group');
+    var groupCN = group.cn('diff-group').add('hidden');
     var counter = {
       block: null,
       value: 0,
@@ -110,8 +80,9 @@ function Group({ name, parent, onSelect }) {
         this.block.dom.innerText = ++this.value;
       }
     };
+    let tree;
 
-    group.append(
+    group.appendTo(parent).append(
       mbr.dom('div', { className: 'diff-group__head' }, function (head) {
         head.append(
           mbr.dom('span', { className: 'diff-group__arrow', innerHTML: '&searr;' }),
@@ -121,45 +92,40 @@ function Group({ name, parent, onSelect }) {
 
         head.dom.onclick = cnToggle('active', groupCN);
       }),
-      mbr.dom('div', { className: 'diff-group__list' }, function (list) {
-        const tree = {
-          element: list,
-          children: {}
-        };
-
-        group.ifc = {
-          push: function (file) {
-            if (!counter.value) {
-              group.appendTo(parent);
-            }
-
-            counter.add();
-            const path = file.name.split('/');
-            const lastIndex = path.length - 1;
-            let current = tree;
-
-            for (let index = 0 ; index < path.length ; ++index) {
-              if (index === lastIndex) {
-                current.children[path[index]] = File({
-                  name: path[index],
-                  file: file,
-                  parent: current.element,
-                  onClick: onSelect
-                });
-              } else {
-                if (!(path[index] in current.children)) {
-                  current.children[path[index]] = {
-                    element: Directory(path[index], current.element),
-                    children: {}
-                  };
-                }
-                current = current.children[path[index]];
-              }
-            }
+      tree = Tree({
+        className: 'diff-group__list',
+        renderFile: function (name, _fullName, params) {
+          counter.add();
+          if (counter.value === 1) {
+            groupCN.del('hidden');
           }
+
+          return mbr.dom('div', null, function (block) {
+            const fileCN = block.cn('diff-group__file');
+            block.append(
+              mbr.dom('span', { innerText: name })
+            );
+            if (params.changed.length) {
+              block.append(
+                mbr.dom('span', {
+                  className: 'diff-group__changes-number',
+                  innerText: '[' + params.changed.join('/') + ']'
+                })
+              )
+            }
+            block.dom.onclick = function () {
+              onSelect(params, fileCN);
+            }
+          });
         }
       })
     );
+
+    group.ifc = {
+      push: function (file) {
+        tree.ifc.push(file.name, file);
+      }
+    }
   });
 }
 

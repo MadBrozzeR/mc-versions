@@ -10,6 +10,7 @@ import { style as diffPaneStyle } from '../components/diff-pane.js';
 import { style as logStyle } from '../components/log.js';
 import { style as playerStyle } from '../components/player.js';
 import { style as diffTypesStyle } from '../components/diff/index.js';
+import { style as treeStyle } from '../components/tree.js';
 
 export var style = {
   ...keyframes,
@@ -57,4 +58,5 @@ export var style = {
   ...logStyle,
   ...playerStyle,
   ...diffTypesStyle,
+  ...treeStyle,
 };

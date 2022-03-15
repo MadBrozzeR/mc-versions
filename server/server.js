@@ -78,6 +78,7 @@ const router = {
     'diff-pane.js',
     'log.js',
     'player.js',
+    'tree.js',
     'diff/compare.js',
     'diff/text-diff.js',
     'diff/sound-diff.js',
