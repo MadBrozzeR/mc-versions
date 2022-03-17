@@ -243,18 +243,18 @@ export function TextDiff (params) {
         index += lines.length - 1;
         let difference = lines.length - replace.length;
         lines.forEach(function (line, index) {
-          right.append(Line({ number: lineNumber + index, text: line, changed: true }));
+          left.append(Line({ number: lineNumber + index, text: line, changed: true }));
         });
         replace.forEach(function (line) {
-          left.append(Line({ number: rightIndex++, text: line, changed: true }));
+          right.append(Line({ number: rightIndex++, text: line, changed: true }));
         });
         if (difference > 0) {
           while (difference--) {
-            left.append(Line({ chaned: true }));
+            right.append(Line({ chaned: true }));
           }
         } else if (difference < 0) {
           while (difference++) {
-            right.append(Line({ chaned: true }));
+            left.append(Line({ chaned: true }));
           }
         }
       } else {

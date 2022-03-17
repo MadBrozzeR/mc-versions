@@ -32,20 +32,20 @@ function getExtension (name) {
 const DIFF_VARIANTS = {
   IMAGE: function (params) {
     return git.diffRaw({
-      refs: [params.f, params.s],
+      refs: [params.s, params.f],
       path: params.n
     }).then((result) => ({
       type: 'picture',
       src: [
-        getImage(result[0].left, params.f),
-        getImage(result[0].right, params.s)
+        getImage(result[0].right, params.f),
+        getImage(result[0].left, params.s)
       ]
     }));
   },
   TEXT: function (params) {
     return Promise.all([
       git.diff({
-        refs: [params.f, params.s],
+        refs: [params.s, params.f],
         path: params.n
       }),
       git.show({
@@ -109,7 +109,7 @@ module.exports.diff = function (request) {
       .then(function (data) {request.send(JSON.stringify(data))});
   } else {
     git.diffName({
-      refs: [firstRev, secondRev]
+      refs: [secondRev, firstRev]
     }).then(function (diff) {
       request.send(JSON.stringify(diff));
     });
