@@ -6,7 +6,8 @@ export const style = {
   '.sound-diff': {
     '__line': {
       height: '28px',
-      padding: '4px 0'
+      padding: '4px 0',
+      whiteSpace: 'nowrap'
     }
   }
 };
@@ -25,7 +26,7 @@ function SoundLine (params, ref) {
 }
 
 export function SoundDiff (params) {
-  return Compare({ className: 'sound-diff__compare' }, function (left, right) {
+  return Compare({ className: 'sound-diff' }, function (left, right) {
     params.changes.forEach(function (change) {
       left.append(SoundLine(change.left, params.refs[0]));
       right.append(SoundLine(change.right, params.refs[1]));

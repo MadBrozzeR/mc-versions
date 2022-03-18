@@ -138,6 +138,13 @@ const groupCheck = {
     Localization: /^assets\/.+\/lang\/.+\.json$/,
     Sounds: /^assets\/.+\.(ogg|mus)$/,
     Assets: /^assets\/.+$/,
+    'Block States': /^client\/assets\/minecraft\/blockstates\/\w+\.json$/,
+    Models: /^client\/assets\/minecraft\/models\/.+\.json$/,
+    Textures: /^client\/assets\/minecraft\/textures\//,
+    Advancements: /^client\/data\/minecraft\/advancements\/.+\.json$/,
+    'Loot Tables': /^client\/data\/minecraft\/loot_tables\/.+\.json$/,
+    Recipes: /^client\/data\/minecraft\/recipes\/.+\.json$/,
+    Tags: /^client\/data\/minecraft\/tags\/.+\.json$/,
     'Client Data': /^client\/.+$/,
     'Server Data': /^server\/.+$/,
 

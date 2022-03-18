@@ -49,17 +49,14 @@ const DIFF_VARIANTS = {
         path: params.n
       }),
       git.show({
-        ref: params.f,
-        file: params.n,
-        convertToString: true
-      })
-    ]).then(function ([diff, content]) {
-      return {
-        type: 'text',
-        content,
-        diff
-      };
-    });
+        ref: params.s,
+        file: params.n
+      }).catch(() => '')
+    ]).then(([diff, content]) => ({
+      type: 'text',
+      content: content.toString(),
+      diff
+    }));
   },
   SOUND: function (params) {
     return git.diffRaw({

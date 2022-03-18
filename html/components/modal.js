@@ -90,9 +90,12 @@ export const style = {
       ':before': {
         display: 'block',
         content: '""',
-        width: '98%',
+        width: '100%',
+        padding: '0 10px',
         height: '1px',
         backgroundColor: '#c99',
+        backgroundClip: 'content-box',
+        boxSizing: 'border-box',
         margin: '0 auto'
       }
     }

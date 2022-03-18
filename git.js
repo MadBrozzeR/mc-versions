@@ -139,9 +139,7 @@ Git.prototype.diff = function (params) {
 }
 
 Git.prototype.show = function (params) {
-  const promise = this.raw('show', params.ref + ':' + params.file);
-
-  return params.convertToString ? promise.then(toString) : promise;
+  return this.raw('show', params.ref + ':' + params.file);
 }
 
 module.exports = { Git };
