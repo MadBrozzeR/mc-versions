@@ -6,3 +6,7 @@ export var selectedVersions = {
   first: cnSwitcher('first'),
   second: cnSwitcher('second')
 }
+
+export var picParams = {
+  scale: cnSwitcher('active', 1)
+}

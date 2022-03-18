@@ -1,4 +1,5 @@
 import { Compare } from "./compare.js";
+import { picParams } from '../../store.js';
 
 export const style = {
   '.pic-diff': {
@@ -33,18 +34,47 @@ export const style = {
 
       ':hover': {
         color: '#aaf'
+      },
+
+      '.active': {
+        color: '#ccf'
       }
     }
   }
 };
 
+function ToolbarButton(scale, action) {
+  return mbr.dom('div', {
+    innerText: scale + 'x'
+  }, function (button) {
+    const buttonCN = button.cn('pic-diff__toolbar-button');
+
+    if (picParams.scale.get() === scale) {
+      picParams.scale(buttonCN, scale);
+    }
+
+    button.dom.onclick = function () {
+      picParams.scale(buttonCN, scale);
+      action();
+    }
+  })
+}
+
 export function PicDiff (params) {
   return mbr.dom('div', { className: 'pic-diff' }, function (block) {
     let ifc = {};
     const pictures = [
-        params.src[0] ? mbr.dom('img', { src: params.src[0] }) : null,
-        params.src[1] ? mbr.dom('img', { src: params.src[1] }) : null
+        params.src[0] ? mbr.dom('img', { src: params.src[0], onload: rescale }) : null,
+        params.src[1] ? mbr.dom('img', { src: params.src[1], onload: rescale }) : null
     ];
+
+    function rescale() {
+      const scale = picParams.scale.get();
+
+      pictures.forEach(function (picture) {
+        picture && (picture.dom.width = picture.dom.naturalWidth * scale);
+      });
+    }
 
     block.append(
       mbr.dom('div', { className: 'pic-diff__content' }, function (content) {
@@ -58,43 +88,15 @@ export function PicDiff (params) {
         }
       }),
       mbr.dom('div', { className: 'pic-diff__toolbar' }, function (toolbar) {
-        function rescale (multiplier) {
-          pictures[0] && (pictures[0].dom.width = pictures[0].dom.naturalWidth * multiplier);
-          pictures[1] && (pictures[1].dom.width = pictures[1].dom.naturalWidth * multiplier);
-        }
-
         toolbar.append(
-          mbr.dom('div', {
-            className: 'pic-diff__toolbar-button',
-            innerText: '1x',
-            onclick: function () {
-              rescale(1);
-            }
-          }),
-          mbr.dom('div', {
-            className: 'pic-diff__toolbar-button',
-            innerText: '2x',
-            onclick: function () {
-              rescale(2);
-            }
-          }),
-          mbr.dom('div', {
-            className: 'pic-diff__toolbar-button',
-            innerText: '4x',
-            onclick: function () {
-              rescale(4);
-            }
-          }),
-          mbr.dom('div', {
-            className: 'pic-diff__toolbar-button',
-            innerText: '8x',
-            onclick: function () {
-              rescale(8);
-            }
-          })
+          ToolbarButton(1, rescale),
+          ToolbarButton(2, rescale),
+          ToolbarButton(4, rescale),
+          ToolbarButton(8, rescale)
         );
       })
     );
+
 
     ifc.sideBySide();
   });

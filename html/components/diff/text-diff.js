@@ -2,13 +2,6 @@ import { Compare } from "./compare.js";
 
 export const style = {
   '.text-diff': {
-    height: '100%',
-
-    '__compare': {
-      display: 'inline-block',
-      minWidth: '100%'
-    },
-
     '__hider': {
       display: 'block',
       width: '100%',
@@ -218,20 +211,12 @@ function Hider (parent) {
 }
 
 export function TextDiff (params) {
-  return Compare({ className: 'text-diff' }, function (leftPanel, rightPanel) {
+  return Compare({ className: 'text-diff' }, function (left, right) {
     const content = params.content.split('\n');
     const diff = parseDiff(params.diff);
-    let left, right;
     let hiders = { left: null, right: null };
     let newHider = true;
     let rightIndex = 1;
-
-    leftPanel.append(
-      left = mbr.dom('div', { className: 'text-diff__compare' })
-    );
-    rightPanel.append(
-      right = mbr.dom('div', { className: 'text-diff__compare' })
-    );
 
     for (let index = 0 ; index < content.length ; ++index) {
       let lineNumber = index + 1;
