@@ -58,7 +58,7 @@ function setupDownload (version, fromFile, onFinish) {
     command: 'd',
     id: version,
     message: version + (fromFile ? ('\t' + 'file') : ''),
-    callback: function (command, message) {
+    callback: function (command, message, updateId) {
       switch (command) {
         case 'log':
           log.ifc.push(message);
@@ -69,6 +69,9 @@ function setupDownload (version, fromFile, onFinish) {
         case 'finish':
           log.ifc.push('DONE');
           onFinish();
+          break;
+        case 'update':
+          log.ifc.update(updateId, message);
           break;
       }
     }

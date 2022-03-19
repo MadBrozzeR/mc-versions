@@ -4,6 +4,7 @@ export const style = {
     overflowY: 'auto',
     padding: '8px',
     fontFamily: 'monospace',
+    whiteSpace: 'pre-line',
 
     '__message': {
       '_error': {
@@ -15,6 +16,8 @@ export const style = {
 
 export function Log () {
   return mbr.dom('div', { className: 'log' }, function (log) {
+    const registry = {};
+
     log.ifc = {
       push: function (message, level = 'LOG') {
         const shouldScroll = log.dom.scrollTop + log.dom.clientHeight >= log.dom.scrollHeight;
@@ -24,11 +27,16 @@ export function Log () {
             : ''
           );
 
-        log.append(mbr.dom('div', { className, innerText: message }));
+        log.append(
+          registry[message] = mbr.dom('div', { className, innerText: message })
+        );
 
         if (shouldScroll) {
           log.dom.scrollTop = log.dom.scrollHeight;
         }
+      },
+      update: function (id, message) {
+        registry[id] && (registry[id].dom.innerText = message);
       }
     }
   });

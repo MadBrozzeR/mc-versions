@@ -23,11 +23,16 @@ const ws = new MadSocket({
         ? versions.getFromFile(PATH.EXPERIMENTAL + version + '.json')
         : versions.get(version);
 
-        promise.then(result => unpackVersion(result, function (log, level) {
-          if (level === 'ERROR') {
-            client.send('error[' + id + ']:' + log);
-          } else {
-            client.send('log[' + id + ']:' + log);
+        promise.then(result => unpackVersion(result, {
+          logger: function (log, level) {
+            if (level === 'ERROR') {
+              client.send('error[' + id + ']:' + log);
+            } else {
+              client.send('log[' + id + ']:' + log);
+            }
+          },
+          onProgress: function (updateId, percents) {
+            client.send('update[' + id + '|' + updateId + ']:' + '[' + percents + '] ' + updateId);
           }
         })).then(function () {
           client.send('finish[' + id + ']')

@@ -1,4 +1,4 @@
-const MESSAGE_RE = /^(start|finish|log|error)\[(.+?)\](?::([\w\W]+))?$/;
+const MESSAGE_RE = /^(start|finish|log|error|update)\[(.+?)\](?::([\w\W]+))?$/;
 let pendingMessage = null;
 let ws;
 const registry = {};
@@ -10,13 +10,15 @@ function connect(message) {
     const regMatch = MESSAGE_RE.exec(event.data);
 
     if (regMatch) {
-      const [, command, id, text] = regMatch;
+      let [, command, id, text] = regMatch;
 
-      if (id in registry) {
-        registry[id](command, text);
+      id = id.split('|');
+
+      if (id[0] in registry) {
+        registry[id[0]](command, text, id[1]);
 
         if (command === 'finish') {
-          delete registry[id];
+          delete registry[id[0]];
         }
       }
     }

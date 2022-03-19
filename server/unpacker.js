@@ -46,7 +46,11 @@ function downloadAssets(version, options = {}) {
               options.logger('Downloading ' + name);
             }
 
-            return asset.get().then(function (data) {
+            return asset.get({
+              onProgress: function (current, total) {
+                options.onProgress && options.onProgress('Downloading ' + name, sizeToPercents(current, total))
+              }
+            }).then(function (data) {
               return writeFile(PATH.ASSETS + name, data).then(queue.done.bind(queue));
             })
           }).catch(function (error) {
@@ -66,7 +70,19 @@ function downloadAssets(version, options = {}) {
   });
 }
 
-async function unpackVersion (version, logger = console.log) {
+function sizeToPercents (current, total) {
+  const value = Math.floor(current / total * 100) + '%';
+
+  if (value.length === 2) {
+    return '  ' + value;
+  } else if (value.length === 3) {
+    return ' ' + value;
+  }
+
+  return value;
+}
+
+async function unpackVersion (version, { logger, onProgress } = { logger: console.log }) {
   const info = await version.get();
   await git.co('master');
   await clear(logger);
@@ -78,18 +94,22 @@ async function unpackVersion (version, logger = console.log) {
   const assetIndex = await version.getAssets();
   await writeFile(PATH.ASSET_INDEX, toJSON(assetIndex))
 
-  logger('Downoloading client')
-  const client = await version.getClient();
+  logger('Downloading client')
+  const client = await version.getClient({ onProgress: function (current, total) {
+    onProgress && onProgress('Downloading client', sizeToPercents(current, total));
+  } });
   logger('Unpacking client')
   client && await UnZIP(client, PATH.CLIENT, prepareUnzipData);
 
-  logger('Downoloading server')
-  const server = await version.getServer();
+  logger('Downloading server')
+  const server = await version.getServer({ onProgress: function (current, total) {
+    onProgress && onProgress('Downloading server', sizeToPercents(current, total));
+  } });
   logger('Unpacking server')
   server && await UnZIP(server, PATH.SERVER);
 
   logger('Downloading assets')
-  await downloadAssets(version, { logger });
+  await downloadAssets(version, { logger, onProgress });
 
   await git.newBranch(info.id);
   logger('Branch ' + info.id + ' created');
