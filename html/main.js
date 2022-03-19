@@ -1,9 +1,28 @@
-// import { DiffList } from './components/diff-list.js';
 import { Toolbar } from './components/toolbar.js';
 import { VersionList } from './components/version-list.js';
 import { Modal } from './components/modal.js';
-import { style } from './styles/index.js';
+import { style, injectStyle } from './styles/index.js';
 import { ifc } from './store.js';
+
+injectStyle({
+  '.mainblock': {
+    height: '100%',
+    padding: '30px 5px 5px'
+  },
+  '.left-panel': {
+    display: 'inline-block',
+    width: '20%',
+    height: '100%',
+    paddingTop: '30px'
+  },
+  '.right-panel': {
+    display: 'inline-block',
+    verticalAlign: 'top',
+    height: '100%',
+    width: '80%',
+    overflow: 'auto'
+  }
+});
 
 window.onload = function () {
   var body = document.getElementsByTagName('body')[0];
@@ -17,17 +36,15 @@ window.onload = function () {
     mainblock.appendTo(body);
 
     mainblock.append(
-      Toolbar(),
       mbr.dom('div', { className: 'left-panel' }, function (leftPanel) {
         leftPanel.append(
-          VersionList(),
-          // DiffList()
+          Toolbar(),
+          VersionList()
         )
       }),
       mbr.dom('div', { className: 'right-panel' }, function (rightPanel) {
         ifc.rightPanel = function (content) {
-          rightPanel.clear();
-          rightPanel.append(content);
+          rightPanel.clear().append(content);
         }
       })
     );

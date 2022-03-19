@@ -7,10 +7,10 @@ const { getExperimental } = require('./fs.js');
 const git = new Git({ repo: PATH.ROOT });
 const versions = new MCRes.Versions();
 
-function getImage ({name, mode}, ref) {
+function getImage ({name, blob, mode}) {
   return mode === '000000' ? null : '/res/image/'
     + name
-    + '?r=' + encodeURIComponent(ref);
+    + '?b=' + encodeURIComponent(blob);
 }
 
 /*
@@ -37,8 +37,8 @@ const DIFF_VARIANTS = {
     }).then((result) => ({
       type: 'picture',
       src: [
-        getImage(result[0].left, params.s),
-        getImage(result[0].right, params.f)
+        getImage(result[0].left),
+        getImage(result[0].right)
       ]
     }));
   },
@@ -134,10 +134,10 @@ module.exports.download = function (request) {
 module.exports.getImage = function (regMatch) {
   const request = this;
   const fileName = regMatch[1];
-  const { r: revision } = request.getParams();
+  const { b: blob } = request.getParams();
   const ext = getExtension(fileName);
 
-  git.show({ ref: revision, file: fileName }).then(function (data) {
+  git.show({ blob }).then(function (data) {
     request.send(data, ext);
   }).catch(function (error) {console.error(error)});
 }

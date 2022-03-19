@@ -1,7 +1,6 @@
 import { keyframes } from './animation.js';
 import { scrollbars } from './scrollbars.js';
 import { style as diffStyle } from '../components/diff.js';
-import { style as toolbarStyle } from '../components/toolbar.js';
 import { style as versionListStyle } from '../components/version-list.js';
 import { style as waiterStyle } from '../components/waiter.js';
 import { style as modalStyle } from '../components/modal.js';
@@ -32,22 +31,6 @@ export var style = {
   'img': {
     imageRendering: 'pixelated'
   },
-  '.mainblock': {
-    height: '100%',
-    padding: '60px 5px 5px'
-  },
-  '.left-panel': {
-    display: 'inline-block',
-    width: '20%',
-    height: '100%'
-  },
-  '.right-panel': {
-    display: 'inline-block',
-    verticalAlign: 'top',
-    height: '100%',
-    width: '80%',
-    overflow: 'auto'
-  },
   ...waiterStyle,
   ...modalStyle,
   ...toolbarStyle,
@@ -60,3 +43,9 @@ export var style = {
   ...diffTypesStyle,
   ...treeStyle,
 };
+
+export function injectStyle (newStyles) {
+  for (const key in newStyles) {
+    style[key] = newStyles[key];
+  }
+}

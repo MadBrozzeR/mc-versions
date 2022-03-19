@@ -139,7 +139,7 @@ Git.prototype.diff = function (params) {
 }
 
 Git.prototype.show = function (params) {
-  return this.raw('show', params.ref + ':' + params.file);
+  return this.raw('show', params.blob || (params.ref + ':' + params.file));
 }
 
 module.exports = { Git };

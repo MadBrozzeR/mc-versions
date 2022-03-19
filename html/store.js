@@ -8,6 +8,6 @@ export var selectedVersions = {
 }
 
 export var picParams = {
-  scale: cnSwitcher('active', 1),
-  mode: cnSwitcher('active', 'SBS')
+  scale: cnSwitcher('active', 8),
+  mode: cnSwitcher('active', 'CV')
 }

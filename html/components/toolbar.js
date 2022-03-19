@@ -1,9 +1,10 @@
 import { ifc } from '../store.js';
 import { DiffPane } from './diff-pane.js';
+import { injectStyle } from '../styles/index.js';
 
-export const style = {
+injectStyle({
   '.toolbar': {
-    marginTop: '-24px',
+    margin: '-30px 0 6px',
     height: '24px',
 
     '-button': {
@@ -13,7 +14,7 @@ export const style = {
       backgroundColor: '#777'
     }
   }
-};
+});
 
 export function Toolbar() {
   return mbr.dom('div', { className: 'toolbar' }, function (buttons) {
