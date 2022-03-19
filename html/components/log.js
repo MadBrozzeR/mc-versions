@@ -4,7 +4,7 @@ export const style = {
     overflowY: 'auto',
     padding: '8px',
     fontFamily: 'monospace',
-    whiteSpace: 'pre-line',
+    whiteSpace: 'pre',
 
     '__message': {
       '_error': {

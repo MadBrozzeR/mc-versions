@@ -37,8 +37,8 @@ const DIFF_VARIANTS = {
     }).then((result) => ({
       type: 'picture',
       src: [
-        getImage(result[0].right, params.f),
-        getImage(result[0].left, params.s)
+        getImage(result[0].left, params.s),
+        getImage(result[0].right, params.f)
       ]
     }));
   },
