@@ -74,9 +74,11 @@ const router = {
   '/messenger.js': PATH.HTML + 'messenger.js',
 
   ...componentsRouter([
+    'link.js',
     'diff.js',
     'toolbar.js',
     'version-list.js',
+    'version-info.js',
     'waiter.js',
     'modal.js',
     'diff-list.js',
@@ -94,8 +96,10 @@ const router = {
   '/ws': leeching,
 
   '/act/versions': { GET: actions.versions },
+  '/act/version': { GET: actions.versionInfo },
   '/act/diff': { GET: actions.diff },
   '/act/download': { GET: actions.download },
+  '/act/tree': { GET: actions.getTree }
 };
 
 const ROUTE_MATCH = {

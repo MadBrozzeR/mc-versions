@@ -1,7 +1,6 @@
 import { keyframes } from './animation.js';
 import { scrollbars } from './scrollbars.js';
 import { style as diffStyle } from '../components/diff.js';
-import { style as versionListStyle } from '../components/version-list.js';
 import { style as waiterStyle } from '../components/waiter.js';
 import { style as modalStyle } from '../components/modal.js';
 import { style as diffListStyle } from '../components/diff-list.js';
@@ -33,8 +32,6 @@ export var style = {
   },
   ...waiterStyle,
   ...modalStyle,
-  ...toolbarStyle,
-  ...versionListStyle,
   ...diffStyle,
   ...diffListStyle,
   ...diffPaneStyle,

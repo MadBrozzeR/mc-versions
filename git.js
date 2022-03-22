@@ -142,4 +142,15 @@ Git.prototype.show = function (params) {
   return this.raw('show', params.blob || (params.ref + ':' + params.file));
 }
 
+Git.prototype.tree = function (params) {
+  return this.raw('ls-tree', '-rz', params.ref).then(parseByMatch(
+    /(\d{6}) (tree|blob) (\w+)\t([^\000]+)\000/g,
+    regMatch => ({
+      mode: regMatch[1],
+      blob: regMatch[3],
+      name: regMatch[4]
+    })
+  ));
+}
+
 module.exports = { Git };

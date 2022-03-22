@@ -14,6 +14,12 @@ export var get = {
   versions: function () {
     return fetch('/act/versions');
   },
+  version: function (params) {
+    return fetch(qs('/act/version', { v: params.version, f: params.fromFile }));
+  },
+  tree: function (params) {
+    return fetch(qs('/act/tree', { v: params.version }));
+  },
   diff: function (params) {
     if (params.first && params.second) {
       return fetch(qs('/act/diff', {f: params.first, s: params.second, n: params.file}));

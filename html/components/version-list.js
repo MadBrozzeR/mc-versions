@@ -1,9 +1,12 @@
 import { get, fetcher } from '../fetchers.js';
-import {setup} from '../messenger.js';
+import { setup } from '../messenger.js';
 import { Log } from './log.js';
+import { VersionInfo } from './version-info.js';
+import { Link } from './link.js';
 import { ifc, selectedVersions } from '../store.js';
+import { injectStyle } from '../styles/index.js';
 
-export const style = {
+injectStyle({
   '.version': {
     margin: '4px 0',
     whiteSpace: 'nowrap',
@@ -47,7 +50,7 @@ export const style = {
       }
     }
   }
-};
+});
 
 function setupDownload (version, fromFile, onFinish) {
   let log;
@@ -138,7 +141,9 @@ export function VersionList() {
                     }
                   });
                 }),
-                mbr.dom('span', { innerText: version.id })
+                Link({ text: version.id, onClick: function () {
+                  ifc.rightPanel(VersionInfo(version));
+                } })
               )
             })
           );

@@ -152,3 +152,24 @@ module.exports.getSound = function (regMatch) {
     request.send(data, ext);
   }).catch(function (error) {console.error(error)});
 }
+
+module.exports.versionInfo = function (request) {
+  const { v: version, f: fromFile } = request.getParams();
+  const promise = fromFile
+    ? versions.getFromFile(PATH.EXPERIMENTAL + version + '.json')
+    : versions.get(version);
+
+  promise.then(version => version.get()).then(function (data) {
+    request.send(JSON.stringify(data), 'json');
+  }).catch(function (error) { console.error(error) });
+}
+
+module.exports.getTree = function (request) {
+  const { v: version } = request.getParams();
+
+  git.tree({
+    ref: version
+  }).then(function (result) {
+    request.send(JSON.stringify(result), 'json');
+  });
+}

@@ -21,7 +21,9 @@ function Directory (name, parent) {
 function File ({ name, file, parent, render, params }) {
   return mbr.dom('div', { className: 'fs-tree__file' }, function (block) {
     block.appendTo(parent).append(
-      render(name, file, params)
+      render
+        ? render(name, file, params)
+        : mbr.dom('span', { innerText: name })
     );
   });
 }
